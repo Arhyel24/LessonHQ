@@ -17,27 +17,58 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Trash2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 export const AccountActions = () => {
   const [confirmText, setConfirmText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const router = useRouter()
 
-  const handleDeleteAccount = async () => {
-    if (confirmText !== "DELETE MY ACCOUNT") {
-      return;
+const handleDeleteAccount = async () => {
+  if (confirmText !== "DELETE MY ACCOUNT") {
+    toast({
+      title: "Confirmation Failed",
+      description: "Please type 'DELETE MY ACCOUNT' to confirm.",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  setIsDeleting(true);
+
+  try {
+    const res = await fetch("/api/user/delete-account", {
+      method: "DELETE",
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.message || "Failed to delete account");
     }
 
-    setIsDeleting(true);
-    // TODO: API call to delete account
-    console.log("Deleting account...");
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsDeleting(false);
-      setConfirmText("");
-      // Redirect to logout or home page
-    }, 2000);
-  };
+    toast({
+      title: "Account Deleted",
+      description: "Your account has been successfully deleted.",
+      variant: "success"
+    });
+
+    // Redirect or sign out user
+    router.push("/");
+    await signOut();
+
+  } catch (err: any) {
+    toast({
+      title: "Error",
+      description: err.message || "Something went wrong while deleting the account.",
+      variant: "destructive",
+    });
+  } finally {
+    setIsDeleting(false);
+  }
+};
+
 
   return (
     <Card className="border-red-200">

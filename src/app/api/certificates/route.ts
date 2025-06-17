@@ -1,17 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import connectDB from '@/lib/connectDB';
 import User from '@/lib/models/User';
-import Course from '@/lib/models/Course';
 import Progress from '@/lib/models/Progress';
 import Purchase from '@/lib/models/Purchase';
+import '@/lib/models/Course';
 
 /**
  * GET /api/certificates
  * Get certificate status for all courses the user has started
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {

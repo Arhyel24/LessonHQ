@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Users, DollarSign, Settings, CreditCard } from "lucide-react";
+import { BookOpen, Users, Settings, CreditCard } from "lucide-react";
 
 interface FAQSectionProps {
   searchQuery: string;

@@ -65,6 +65,7 @@ export const AffiliateEarningsCard = () => {
           description: "You cancelled the share.",
           variant: "default",
         });
+        console.log(error);
       }
     } else {
       try {
@@ -80,6 +81,7 @@ export const AffiliateEarningsCard = () => {
           description: "We couldn't copy the link. Try manually.",
           variant: "destructive",
         });
+        console.log(error);
       }
     }
   };
@@ -97,7 +99,9 @@ export const AffiliateEarningsCard = () => {
 
       <div className="space-y-4 mb-6">
         <div className="bg-primary/5 rounded-lg p-4">
-          <p className="font-nunito text-sm text-gray-600 mb-1">Total Earnings</p>
+          <p className="font-nunito text-sm text-gray-600 mb-1">
+            Total Earnings
+          </p>
           <p className="font-poppins font-bold text-2xl text-primary">
             ₦{affiliateData.totalEarnings.toLocaleString()}
           </p>

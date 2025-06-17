@@ -73,7 +73,8 @@ export const AffiliateHistoryTable = ({
             No Affiliates Yet
           </h3>
           <p className="font-nunito text-gray-600">
-            You haven&apos;t referred anyone yet. Share your link and start earning!
+            You haven&apos;t referred anyone yet. Share your link and start
+            earning!
           </p>
         </CardContent>
       </Card>
@@ -118,9 +119,7 @@ export const AffiliateHistoryTable = ({
                   </TableCell>
                   <TableCell>{getStatusBadge(record.status)}</TableCell>
                   <TableCell className="text-right font-inter font-semibold">
-                    {record.reward > 0
-                      ? `₦${record.reward}`
-                      : "-"}
+                    {record.reward > 0 ? `₦${record.reward}` : "-"}
                   </TableCell>
                 </TableRow>
               ))}
@@ -144,9 +143,7 @@ export const AffiliateHistoryTable = ({
                 <div className="text-right">
                   {getStatusBadge(record.status)}
                   <p className="font-inter font-semibold text-sm mt-1">
-                    {record.reward > 0
-                      ? `₦${record.reward}`
-                      : "-"}
+                    {record.reward > 0 ? `₦${record.reward}` : "-"}
                   </p>
                 </div>
               </div>

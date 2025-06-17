@@ -1,54 +1,67 @@
 "use client"
 
+import {useState, useEffect} from "react"
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Clock, Users, Star, CheckCircle } from "lucide-react";
-import { Course } from "@/types/course";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
+import { ICourseTransformed } from "@/types/course";
 
 const CourseDetail = () => {
-  const params = useParams();
+  const { slug } = useParams();
   const router = useRouter();
 
-  const courseId = params.courseId as string;
+  const [course, setCourse] = useState<ICourseTransformed | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  // Mock course data - in real app this would be fetched based on courseId
-  const course: Course = {
-    id: courseId,
-    title: "Affiliate Marketing Mastery",
-    description:
-      "Master the art of affiliate marketing and build a sustainable income stream without any upfront investment. Learn proven strategies used by successful marketers to generate consistent commissions.",
-    thumbnail:
-      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=400&fit=crop",
-    icon: "💰",
-    progress: 65,
-    isEnrolled: false,
-    isCompleted: false,
-    badge: "Best Seller",
-    duration: "4 weeks",
-    difficulty: "Beginner",
-    modules: [
-      "Introduction to Affiliate Marketing",
-      "Finding the Right Products & Programs",
-      "Building Your Audience & Platform",
-      "Content Creation Strategies",
-      "Conversion Optimization Techniques",
-      "Scaling Your Affiliate Business",
-    ],
-    instructor: "Coach Adams",
-    price: 15000,
-    originalPrice: 25000,
-    rating: 4.8,
-    students: 2456,
-  };
+  useEffect(() => {
+    const fetchCourse = async () => {
+      try {
+        const res = await fetch(`/api/course/getbyslug/${slug}`);
+        if (!res.ok) throw new Error("Not found");
+
+        const json = await res.json();  
+        if (!json.data) throw new Error("No course data");
+
+        console.log("Course data:", json);
+
+        setCourse(json.data);
+      } catch (error) {
+        console.error("Error loading course:", error);
+        router.push("/courses");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourse();
+  }, [slug, router]);
 
   const getActionButtonText = () => {
-    if (!course.isEnrolled) return "Enroll Now";
+    if (!course?.isEnrolled) return "Enroll Now";
     if (course.progress === 100) return "Review Course";
     return course.progress > 0 ? "Continue Learning" : "Start Learning";
   };
+
+  const handleButtonClick = () => {
+    if (!course?.isEnrolled) {
+      router.push(`/course/${slug}/payment`)
+    } else {
+      router.push(`/course/${slug}/lessons`)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-500">
+        Loading course details...
+      </div>
+    );
+  }
+
+  if (!course) return null; // Shouldn't reach here, but just in case
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -196,6 +209,7 @@ const CourseDetail = () => {
 
               <Button
                 className="w-full mb-4 h-12 hover:bg-accent"
+                onClick={handleButtonClick}
                 variant={course.progress === 100 ? "outline" : "default"}
               >
                 {getActionButtonText()}

@@ -1,64 +1,37 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface IProgress extends Document {
-  _id: mongoose.Types.ObjectId;
   user: mongoose.Types.ObjectId;
   course: mongoose.Types.ObjectId;
-  lessonsCompleted: number[];
+  lessonsCompleted: string[];
   percentage: number;
   completedAt?: Date;
   certificateIssued: boolean;
-  lastAccessedAt: Date;
-  timeSpent: number; // in minutes
+  lastAccessedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
 
 const ProgressSchema = new Schema<IProgress>({
-  user: { 
-    type: Schema.Types.ObjectId, 
-    ref: 'User', 
-    required: true 
-  },
-  course: { 
-    type: Schema.Types.ObjectId, 
-    ref: 'Course', 
-    required: true 
-  },
-  lessonsCompleted: { 
-    type: [Number], 
-    default: [] 
-  },
-  percentage: { 
-    type: Number, 
-    default: 0,
-    min: 0,
-    max: 100
-  },
-  completedAt: { 
-    type: Date 
-  },
-  certificateIssued: { 
-    type: Boolean, 
-    default: false 
-  },
-  lastAccessedAt: {
-    type: Date,
-    default: Date.now
-  },
-  timeSpent: {
-    type: Number,
-    default: 0,
-    min: 0
-  }
-}, {
-  timestamps: true
+  user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  course: { type: Schema.Types.ObjectId, ref: "Course", required: true },
+  lessonsCompleted: { type: [String], default: [] },
+  percentage: { type: Number, default: 0, min: 0, max: 100 },
+  completedAt: { type: Date },
+  certificateIssued: { type: Boolean, default: false },
+  lastAccessedAt: { type: Date, default: null },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
 
-// Indexes for performance
-ProgressSchema.index({ user: 1 });
-ProgressSchema.index({ course: 1 });
+// Compound index to ensure one progress record per user per course
 ProgressSchema.index({ user: 1, course: 1 }, { unique: true });
-ProgressSchema.index({ percentage: 1 });
 
-export default mongoose.models.Progress || mongoose.model<IProgress>('Progress', ProgressSchema);
+// Update the updatedAt field on save
+ProgressSchema.pre("save", function (next) {
+  this.updatedAt = new Date();
+  next();
+});
+
+export default mongoose.models.Progress ||
+  mongoose.model<IProgress>("Progress", ProgressSchema);

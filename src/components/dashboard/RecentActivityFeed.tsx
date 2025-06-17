@@ -1,14 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  CheckCircle,
-  BookOpen,
-  Users,
-  LucideProps,
-} from "lucide-react";
+import { CheckCircle, BookOpen, Users, LucideProps } from "lucide-react";
 import { ForwardRefExoticComponent } from "react";
-import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -86,7 +80,7 @@ export const RecentActivityFeed = () => {
         <h2 className="font-poppins font-semibold text-lg text-gray-900">
           Recent Activity
         </h2>
-        <Link href="/activity">
+        <Link href="/activities">
           <Button
             variant="ghost"
             className="text-sm font-inter text-primary hover:underline"

@@ -17,13 +17,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`font-sans antialiased`}>
+      <body className="font-sans antialiased">
         <Provider>
           <Header />
-          {children}
+          <main className="w-full lg:px-6 lg:max-w-[1280px] lg:mx-auto">
+            {children}
+          </main>
           <Toaster position="top-right" />
         </Provider>
       </body>
     </html>
   );
 }
+

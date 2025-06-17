@@ -11,7 +11,9 @@ interface AffiliateLinkCardProps {
   AffiliateLink: string;
 }
 
-export const AffiliateLinkCard = ({ AffiliateLink }: AffiliateLinkCardProps) => {
+export const AffiliateLinkCard = ({
+  AffiliateLink,
+}: AffiliateLinkCardProps) => {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 

@@ -1,23 +1,72 @@
-"use client"
+"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Edit, Camera } from "lucide-react";
+import { Edit, Camera, Loader2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import Image from "next/image";
 
 export const ProfileOverviewCard = () => {
+  const { data: session, update } = useSession();
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState("Ada Okafor");
-  const [email] = useState("ada@example.com");
+  const [name, setName] = useState("");
+  const [initialName, setInitialName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = () => {
-    setIsEditing(false);
-    // TODO: API call to save changes
-    console.log("Saving profile changes:", { name });
+  useEffect(() => {
+    if (session?.user?.name) {
+      setName(session.user.name);
+      setInitialName(session.user.name);
+    }
+  }, [session]);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const res = await fetch("api/user/update-username", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to update name.");
+      }
+
+      await update();
+      toast({
+        title: "Username Update",
+        description: "Username updated successfully!",
+        variant: "success",
+      });
+      setInitialName(name);
+      setIsEditing(false);
+    } catch (error) {
+      toast({
+        title: "Username Update",
+        description: "Failed to update username!",
+        variant: "destructive",
+      });
+      console.error(error);
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  const handleCancel = () => {
+    setName(initialName);
+    setIsEditing(false);
+  };
+
+  const userEmail = session?.user?.email || "user@example.com";
+  const userImage = session?.user?.image || "";
 
   return (
     <Card>
@@ -26,12 +75,17 @@ export const ProfileOverviewCard = () => {
       </CardHeader>
       <CardContent>
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-          {/* Avatar Section */}
+          {/* Avatar */}
           <div className="relative">
             <Avatar className="h-24 w-24">
-              <AvatarImage src="" />
+              <AvatarImage src={userImage} />
               <AvatarFallback className="bg-primary/10 text-primary text-xl font-semibold">
-                AO
+                <Image
+                  src="/avatar.jpeg"
+                  alt="Fallback Avatar"
+                  width={200}
+                  height={200}
+                />
               </AvatarFallback>
             </Avatar>
             <Button
@@ -43,7 +97,7 @@ export const ProfileOverviewCard = () => {
             </Button>
           </div>
 
-          {/* Profile Details */}
+          {/* Details */}
           <div className="flex-1 space-y-4">
             <div className="space-y-2">
               <Label htmlFor="displayName">Full Name</Label>
@@ -61,34 +115,45 @@ export const ProfileOverviewCard = () => {
 
             <div className="space-y-2">
               <Label>Email Address</Label>
-              <p className="text-gray-600">{email}</p>
+              <p className="text-gray-600">{userEmail}</p>
             </div>
 
             <div className="space-y-2">
               <Label>Role</Label>
-              <p className="text-gray-600">Student</p>
+              <p className="text-gray-600">
+                {session?.user?.role || "Student"}
+              </p>
             </div>
 
-            {/* Action Buttons */}
+            {/* Actions */}
             <div className="flex gap-3 pt-2">
               {isEditing ? (
                 <>
-                  <Button 
+                  <Button
                     onClick={handleSave}
-                    className="bg-primary hover:bg-primary/90"
+                    disabled={name.trim() === "" || isSaving}
+                    className="bg-primary hover:bg-primary/90 flex items-center gap-2"
                   >
-                    Save Changes
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      "Save Changes"
+                    )}
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setIsEditing(false)}
+                  <Button
+                    variant="outline"
+                    onClick={handleCancel}
+                    disabled={isSaving}
                   >
                     Cancel
                   </Button>
                 </>
               ) : (
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setIsEditing(true)}
                   className="flex items-center gap-2"
                 >

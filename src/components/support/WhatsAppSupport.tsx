@@ -9,7 +9,7 @@ export const WhatsAppSupport = () => {
     const message = encodeURIComponent(
       "Hi! I need help with my Massive Income Course account. Can you assist me?"
     );
-    const phoneNumber = "2348123456789"; // Replace with actual WhatsApp number
+    const phoneNumber = process.env.PHONE_NUMBER;
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
     
     window.open(whatsappUrl, '_blank');

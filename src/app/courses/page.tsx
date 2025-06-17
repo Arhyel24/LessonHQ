@@ -1,10 +1,11 @@
-"use client"
+"use client";
 
 import { useEffect, useState } from "react";
 import { CourseCard } from "@/components/courses/CourseCard";
 import { CourseFilters } from "@/components/courses/CourseFilters";
 import { CTAFooter } from "@/components/courses/CTAFooter";
 import { FilterType, ICourse } from "@/lib/models/Course";
+import { LoadingScreen } from "@/components/loading-screen";
 
 export interface ICourseExtended extends ICourse {
   progress: number;
@@ -12,27 +13,26 @@ export interface ICourseExtended extends ICourse {
   isCompleted: boolean;
   badge?: string;
   duration: string;
-  modules: string[];
 }
 
 const Courses = () => {
   const [selectedFilter, setSelectedFilter] = useState<FilterType>("all");
   const [courses, setCourses] = useState<ICourseExtended[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchCourses() {
       try {
-        const res = await fetch("/api/courses");
+        const res = await fetch("/api/course");
         if (!res.ok) throw new Error("Failed to fetch courses");
         const json = await res.json();
 
-        if (!json.success) throw new Error(json.error || "Failed to fetch courses");
+        if (!json.success)
+          throw new Error(json.error || "Failed to fetch courses");
 
         setCourses(json.data);
-      } catch (err: any) {
-        setError(err.message || "Unknown error");
+      } catch (err) {
+        console.log((err as Error).message || "Unknown error");
       } finally {
         setLoading(false);
       }
@@ -41,9 +41,7 @@ const Courses = () => {
     fetchCourses();
   }, []);
 
-  if (loading) {
-    return <p className="p-6 text-center text-gray-500">Loading courses...</p>;
-  }
+  if (loading) return <LoadingScreen message="Loading courses..." />;
 
   // Filter courses based on selection
   const filteredCourses = courses.filter((course) => {

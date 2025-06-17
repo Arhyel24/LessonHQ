@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Download, Award } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
 
 interface Certificate {
   id: string;

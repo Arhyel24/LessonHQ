@@ -1,27 +1,57 @@
-"use client"
+"use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useNotificationPreferences } from "../notisDebounceSave";
 
 export const NotificationPreferences = () => {
   const { toast } = useToast();
-  const [preferences, setPreferences] = useState({
-    referralUpdates: true,
-    courseAlerts: true,
-    promotionalEmails: false
+  const { preferences, handleToggle, setPreferences } =
+    useNotificationPreferences();
+
+  const [loading, setLoading] = useState(false);
+  const mounted = useRef(false);
+
+  const mapFromApiFormat = (data: {
+    email: {
+      referralEarnings: boolean;
+      courseUpdates: boolean;
+      promotions: boolean;
+    };
+  }) => ({
+    referralUpdates: data.email?.referralEarnings ?? true,
+    courseAlerts: data.email?.courseUpdates ?? true,
+    promotionalEmails: data.email?.promotions ?? false,
   });
 
-  const handleToggle = (key: string, value: boolean) => {
-    setPreferences(prev => ({ ...prev, [key]: value }));
-    // Auto-save notification preferences
-    toast({
-      title: "Preferences Updated",
-      description: "Your notification settings have been saved.",
-    });
+  const fetchPreferences = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/user/notification-preferences");
+      const json = await res.json();
+      if (json.success && json.data) {
+        setPreferences(mapFromApiFormat(json.data));
+      }
+    } catch {
+      toast({
+        title: "Error",
+        description: "Failed to load preferences.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    if (!mounted.current) {
+      fetchPreferences();
+      mounted.current = true;
+    }
+  }, []);
 
   return (
     <Card>
@@ -39,7 +69,8 @@ export const NotificationPreferences = () => {
             </div>
             <Switch
               checked={preferences.referralUpdates}
-              onCheckedChange={(value) => handleToggle("referralUpdates", value)}
+              onCheckedChange={(v) => handleToggle("referralUpdates", v)}
+              disabled={loading}
             />
           </div>
 
@@ -52,7 +83,8 @@ export const NotificationPreferences = () => {
             </div>
             <Switch
               checked={preferences.courseAlerts}
-              onCheckedChange={(value) => handleToggle("courseAlerts", value)}
+              onCheckedChange={(v) => handleToggle("courseAlerts", v)}
+              disabled={loading}
             />
           </div>
 
@@ -65,7 +97,8 @@ export const NotificationPreferences = () => {
             </div>
             <Switch
               checked={preferences.promotionalEmails}
-              onCheckedChange={(value) => handleToggle("promotionalEmails", value)}
+              onCheckedChange={(v) => handleToggle("promotionalEmails", v)}
+              disabled={loading}
             />
           </div>
         </div>

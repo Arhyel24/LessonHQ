@@ -5,12 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { BookOpen, Calendar } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Course {
   id: string;
   title: string;
+  slug: string;
   progress: number;
-  lastAccessed: string;
+  lastAccessedAt: string;
   totalLessons: number;
   completedLessons: number;
 }
@@ -18,6 +20,7 @@ interface Course {
 export const CourseProgressSection = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -44,6 +47,10 @@ export const CourseProgressSection = () => {
     return "bg-gray-400";
   };
 
+  const handleCourseButton = (slug: string) => {
+    router.push(`/course/${slug}/lesson`);
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
       <div className="flex items-center justify-between mb-6">
@@ -61,7 +68,7 @@ export const CourseProgressSection = () => {
         <div className="text-center py-10">
           <BookOpen className="w-10 h-10 mx-auto text-gray-300 mb-4" />
           <p className="text-gray-500 mb-3 text-sm font-nunito">
-            You haven't started any course yet.
+            You haven&apos;t started any course yet.
           </p>
           <Button asChild className="bg-primary text-white">
             <Link href="/courses">Browse Courses</Link>
@@ -86,7 +93,7 @@ export const CourseProgressSection = () => {
                     </div>
                     <div className="flex items-center">
                       <Calendar className="w-4 h-4 mr-1" />
-                      {course.lastAccessed}
+                      {course.lastAccessedAt}
                     </div>
                   </div>
                 </div>
@@ -106,6 +113,7 @@ export const CourseProgressSection = () => {
               </div>
 
               <Button
+                onClick={() => handleCourseButton(course.slug)}
                 className={`w-full text-white font-inter ${getProgressColor(
                   course.progress
                 )}`}

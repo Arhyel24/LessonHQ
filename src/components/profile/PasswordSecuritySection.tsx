@@ -1,26 +1,30 @@
-"use client"
+"use client";
 
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export const PasswordSecuritySection = () => {
   const { toast } = useToast();
+
   const [passwords, setPasswords] = useState({
     current: "",
     new: "",
     confirm: ""
   });
+
   const [showPasswords, setShowPasswords] = useState({
     current: false,
     new: false,
     confirm: false
   });
+
   const [passwordStrength, setPasswordStrength] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   const calculatePasswordStrength = (password: string) => {
     let strength = 0;
@@ -38,11 +42,13 @@ export const PasswordSecuritySection = () => {
     }
   };
 
-  const togglePasswordVisibility = (field: string) => {
+  type PasswordField = 'current' | 'new' | 'confirm';
+
+  const togglePasswordVisibility = (field: PasswordField) => {
     setShowPasswords(prev => ({ ...prev, [field]: !prev[field] }));
   };
 
-  const handleUpdatePassword = () => {
+  const handleUpdatePassword = async () => {
     if (passwords.new !== passwords.confirm) {
       toast({
         title: "Password Mismatch",
@@ -52,14 +58,40 @@ export const PasswordSecuritySection = () => {
       return;
     }
 
-    // TODO: API call to update password
-    console.log("Updating password");
-    setPasswords({ current: "", new: "", confirm: "" });
-    setPasswordStrength(0);
-    toast({
-      title: "Password Updated",
-      description: "Your password has been changed successfully.",
-    });
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/user/change-password", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          currentPassword: passwords.current,
+          newPassword: passwords.new,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.message || "Something went wrong.");
+      }
+
+      toast({
+        title: "Password Updated",
+        description: "Your password has been changed successfully.",
+      });
+
+      setPasswords({ current: "", new: "", confirm: "" });
+      setPasswordStrength(0);
+    } catch (err: any) {
+      toast({
+        title: "Update Failed",
+        description: err.message || "Could not change password.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getStrengthColor = () => {
@@ -82,6 +114,7 @@ export const PasswordSecuritySection = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
+          {/* Current Password */}
           <div className="space-y-2">
             <Label htmlFor="currentPassword">Current Password</Label>
             <div className="relative">
@@ -105,6 +138,7 @@ export const PasswordSecuritySection = () => {
             </div>
           </div>
 
+          {/* New Password */}
           <div className="space-y-2">
             <Label htmlFor="newPassword">New Password</Label>
             <div className="relative">
@@ -130,12 +164,20 @@ export const PasswordSecuritySection = () => {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Password Strength:</span>
-                  <span className={`font-medium ${passwordStrength >= 75 ? 'text-green-600' : passwordStrength >= 50 ? 'text-yellow-600' : 'text-red-600'}`}>
+                  <span
+                    className={`font-medium ${
+                      passwordStrength >= 75
+                        ? "text-green-600"
+                        : passwordStrength >= 50
+                        ? "text-yellow-600"
+                        : "text-red-600"
+                    }`}
+                  >
                     {getStrengthText()}
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
+                  <div
                     className={`h-2 rounded-full transition-all ${getStrengthColor()}`}
                     style={{ width: `${passwordStrength}%` }}
                   />
@@ -144,6 +186,7 @@ export const PasswordSecuritySection = () => {
             )}
           </div>
 
+          {/* Confirm Password */}
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirm New Password</Label>
             <div className="relative">
@@ -167,12 +210,18 @@ export const PasswordSecuritySection = () => {
             </div>
           </div>
 
-          <Button 
+          <Button
             onClick={handleUpdatePassword}
-            disabled={!passwords.current || !passwords.new || !passwords.confirm}
-            className="bg-primary hover:bg-primary/90"
+            disabled={
+              !passwords.current ||
+              !passwords.new ||
+              !passwords.confirm ||
+              isLoading
+            }
+            className="bg-primary hover:bg-primary/90 flex items-center gap-2"
           >
-            Update Password
+            {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+            {isLoading ? "Updating..." : "Update Password"}
           </Button>
         </div>
       </CardContent>

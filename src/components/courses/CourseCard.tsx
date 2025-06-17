@@ -5,12 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Course } from "@/types/course";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { ICourseExtended } from "@/app/courses/page";
 
 interface CourseCardProps {
-  course: Course;
+  course: ICourseExtended;
   index: number;
 }
 
@@ -22,7 +22,7 @@ export const CourseCard = ({ course, index }: CourseCardProps) => {
   const animationDelay = `${index * 0.1}s`;
 
   const handleCardClick = () => {
-    router.push(`/course/${course.id}`);
+    router.push(`/course/${course.slug}`);
   };
   
   return (
@@ -107,7 +107,7 @@ export const CourseCard = ({ course, index }: CourseCardProps) => {
             </Button>
           </>
         ) : (
-          <Button className="w-full mt-4">
+          <Button className="w-full mt-4 cursor-pointer">
             View Course
           </Button>
         )}

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Share2 } from "lucide-react";
 import { AffiliateDashboardData } from "@/types/earnings";
 import { useEffect, useState } from "react";
-import { toast } from "@/hooks/use-toast";
+import { LoadingScreen } from "@/components/loading-screen";
 
 const Earnings = () => {
   const [affiliateData, setAffiliateData] =
@@ -25,17 +25,8 @@ const Earnings = () => {
         }
 
         setAffiliateData(json.data);
-        toast({
-          title: "Referral data loaded",
-          description: "Your affiliate stats have been updated.",
-          variant: "success",
-        });
       } catch (error) {
-        toast({
-          title: "Error",
-          description: (error as Error).message || "Something went wrong",
-          variant: "destructive",
-        });
+        console.log("Failed to fetch earnings data:", error);
       } finally {
         setLoading(false);
       }
@@ -50,7 +41,8 @@ const Earnings = () => {
     });
   };
 
-  if (loading || !affiliateData) return <p>Loading...</p>;
+  if (loading || !affiliateData)
+    return <LoadingScreen message="Loading earnings..." />;
 
   return (
     <div className="min-h-screen bg-gray-50">
