@@ -67,7 +67,7 @@ export const UserForm = ({ onClose }: UserFormProps) => {
         description: "An error occurred. Please try again.",
         variant: "destructive",
       });
-      console.log("Error enrolling user:", error);
+      console.error("Error enrolling user:", error);
     } finally {
       setLoading(false);
     }

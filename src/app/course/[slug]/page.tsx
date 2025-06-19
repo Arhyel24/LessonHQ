@@ -26,8 +26,6 @@ const CourseDetail = () => {
         const json = await res.json();
         if (!json.data) throw new Error("No course data");
 
-        console.log("Course data:", json);
-
         setCourse(json.data);
       } catch (error) {
         console.error("Error loading course:", error);

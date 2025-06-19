@@ -38,9 +38,9 @@ export function Header() {
     "/admin",
     "/email-verification",
   ];
-  const shouldHideHeader = hideHeaderRoutes.some((route) =>
-    pathname.includes(route)
-  );
+  const shouldHideHeader =
+    pathname === "/" ||
+    hideHeaderRoutes.some((route) => pathname.includes(route));
 
   if (shouldHideHeader) return null;
 

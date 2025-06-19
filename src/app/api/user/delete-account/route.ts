@@ -51,11 +51,6 @@ export async function DELETE() {
     // Delete user account
     await User.findByIdAndDelete(user._id);
 
-    // // Log deletion reason (optional - for analytics)
-    // if (reason) {
-    //   console.log(`Account deleted - User: ${user.email}, Reason: ${reason}`);
-    // }
-
     return NextResponse.json({
       success: true,
       message: 'Account deleted successfully'

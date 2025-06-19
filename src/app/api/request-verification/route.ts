@@ -27,8 +27,6 @@ export async function POST(req: NextRequest) {
 
     const result = await sendVerificationEmail(user.email, user.name);
 
-    console.log("Verification email sent:", result);
-
     return NextResponse.json(
       { success: true, message: "Verification email sent." },
       { status: 200 }

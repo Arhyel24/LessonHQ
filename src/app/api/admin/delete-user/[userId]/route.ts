@@ -90,13 +90,6 @@ export async function DELETE(
     // Delete user account
     await User.findByIdAndDelete(userId);
 
-    // Log admin deletion
-    console.log(
-      `Admin deletion - Target: ${targetUser.email}, Admin: ${
-        adminUser.email
-      }, Reason: ${reason || "Not specified"}`
-    );
-
     // Create activity for admin
     await Activity.create({
       user: adminUser._id,

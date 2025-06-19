@@ -31,12 +31,12 @@ async function connectDB(): Promise<typeof mongoose> {
   }
 
   if (!cached!.promise) {
-    console.log("No cached promise found, creating new connection promise");
+    // console.log("No cached promise found, creating new connection promise");
 
     cached!.promise = mongoose
       .connect(MONGODB_URI)
       .then((mongoose) => {
-        console.log("MongoDB connected successfully");
+        // console.log("MongoDB connected successfully");
         return mongoose;
       })
       .catch((error) => {
@@ -44,7 +44,7 @@ async function connectDB(): Promise<typeof mongoose> {
         throw error;
       });
   } else {
-    console.log("Using existing cached promise for connection");
+    // console.log("Using existing cached promise for connection");
   }
 
   try {

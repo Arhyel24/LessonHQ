@@ -55,8 +55,6 @@ const CoursePayment = () => {
         const json = await res.json();
         if (!json.data) throw new Error("No course data");
 
-        console.log("Course data:", json);
-
         if (json.data.isEnrolled) router.push(`/course/${slug}/lessons`);
 
         setCourse(json.data);
@@ -195,8 +193,6 @@ const CoursePayment = () => {
         });
         return;
       }
-
-      console.log("Payment data:", json);
 
       if (data.enrolled) {
         // Free enrollment successful

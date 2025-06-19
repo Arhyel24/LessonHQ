@@ -175,10 +175,6 @@ export async function POST(req: NextRequest) {
     // Email failure should not break payment flow
   }
 
-  console.log(
-    `✅ User ${purchase.user.email} enrolled in course: ${purchase.course.title}`
-  );
-
   return NextResponse.json(
     { message: "Payment verified and purchase completed" },
     { status: 200 }

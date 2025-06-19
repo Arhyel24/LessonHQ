@@ -65,7 +65,7 @@ export const AffiliateEarningsCard = () => {
           description: "You cancelled the share.",
           variant: "default",
         });
-        console.log(error);
+        console.error(error);
       }
     } else {
       try {
@@ -81,7 +81,7 @@ export const AffiliateEarningsCard = () => {
           description: "We couldn't copy the link. Try manually.",
           variant: "destructive",
         });
-        console.log(error);
+        console.error(error);
       }
     }
   };

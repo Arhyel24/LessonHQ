@@ -54,7 +54,6 @@ export const CourseForm = ({ onClose }: CourseFormProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Course data:", { ...formData, lessons });
     onClose();
   };
 

@@ -62,11 +62,11 @@ export async function POST(request: NextRequest) {
         access: "public",
         addRandomSuffix: true,
         allowOverwrite: true,
-        onUploadProgress: ({ loaded, percentage, total }) => {
-          console.log("Bytes sent:", loaded);
-          console.log("Total Bytes:", total);
-          console.log("Progress:", percentage);
-        },
+        // onUploadProgress: ({ loaded, percentage, total }) => {
+        //   console.log("Bytes sent:", loaded);
+        //   console.log("Total Bytes:", total);
+        //   console.log("Progress:", percentage);
+        // },
       });
 
       // Update user avatar URL

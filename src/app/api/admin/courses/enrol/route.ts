@@ -147,15 +147,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("Firt check passed");
-
     // Verify student exists
     const student = await User.findById(studentId);
     if (!student) {
       return NextResponse.json({ error: "Student not found" }, { status: 404 });
     }
-
-    console.log("Student found:", student.name);
 
     // Verify courses exist
     const courses = await Course.find({
@@ -169,8 +165,6 @@ export async function POST(request: NextRequest) {
         { status: 404 }
       );
     }
-
-    console.log("Courses found:", courses.map((c) => c.title).join(", "));
 
     const enrolledCourses: string[] = [];
     const skippedCourses: string[] = [];

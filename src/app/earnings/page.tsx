@@ -26,7 +26,7 @@ const Earnings = () => {
 
         setAffiliateData(json.data);
       } catch (error) {
-        console.log("Failed to fetch earnings data:", error);
+        console.error("Failed to fetch earnings data:", error);
       } finally {
         setLoading(false);
       }

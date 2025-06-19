@@ -32,7 +32,7 @@ const Courses = () => {
 
         setCourses(json.data);
       } catch (err) {
-        console.log((err as Error).message || "Unknown error");
+        console.error((err as Error).message || "Unknown error");
       } finally {
         setLoading(false);
       }

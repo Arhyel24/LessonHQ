@@ -17,7 +17,6 @@ export async function POST(req: NextRequest) {
   const userEmail = session.user?.email;
 
   const { courseId, lessonId } = await req.json();
-  console.log("Lesson ID:", lessonId);
 
   if (!courseId || !lessonId) {
     return NextResponse.json(
