@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/utils/authOptions";
 import connectDB from "@/lib/connectDB";
 import Purchase from "@/lib/models/Purchase";
 import Progress from "@/lib/models/Progress";
+import "@/lib/models/Course"; // Ensure Course model is imported for population
 import { formatDistanceToNow } from "date-fns";
 
 export async function GET() {
