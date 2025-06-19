@@ -9,16 +9,16 @@ import User from '@/lib/models/User';
  * GET /api/activity/[id]
  * Get specific activity by ID
  */
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
-    // Extract ID from request URL
-    // Assuming the URL is something like /api/activity/[id]
-    const id = request.nextUrl.pathname.split("/").pop();
+    const { id } = await context.params;
 
     await connectDB();
 
@@ -58,20 +58,22 @@ export async function GET(request: NextRequest) {
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const params = await context.params;
 
     await connectDB();
 
     // Get user
     const user = await User.findOne({ email: session.user.email });
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     const body = await request.json();
@@ -85,19 +87,21 @@ export async function PATCH(
     );
 
     if (!activity) {
-      return NextResponse.json({ error: 'Activity not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: "Activity not found" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({
       success: true,
       data: activity,
-      message: 'Activity updated successfully'
+      message: "Activity updated successfully",
     });
-
   } catch (error) {
-    console.error('Activity update error:', error);
+    console.error("Activity update error:", error);
     return NextResponse.json(
-      { error: 'Failed to update activity' },
+      { error: "Failed to update activity" },
       { status: 500 }
     );
   }
@@ -109,41 +113,45 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const params = await context.params;
 
     await connectDB();
 
     // Get user
     const user = await User.findOne({ email: session.user.email });
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Delete activity
     const activity = await Activity.findOneAndDelete({
       _id: params.id,
-      user: user._id
+      user: user._id,
     });
 
     if (!activity) {
-      return NextResponse.json({ error: 'Activity not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: "Activity not found" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Activity deleted successfully'
+      message: "Activity deleted successfully",
     });
-
   } catch (error) {
-    console.error('Activity deletion error:', error);
+    console.error("Activity deletion error:", error);
     return NextResponse.json(
-      { error: 'Failed to delete activity' },
+      { error: "Failed to delete activity" },
       { status: 500 }
     );
   }
