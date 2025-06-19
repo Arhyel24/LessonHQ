@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/utils/authOptions";
 
 import connectDB from "@/lib/connectDB";
 import Purchase from "@/lib/models/Purchase";
