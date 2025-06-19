@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/utils/authOptions";
 import connectDB from "@/lib/connectDB";
 import User from "@/lib/models/User";
 import Course from "@/lib/models/Course";
@@ -169,7 +169,6 @@ export async function GET(request: Request) {
     );
   }
 }
-  
 
 // Helper function to calculate time ago
 function getTimeAgo(date: Date): string {

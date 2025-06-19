@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/utils/authOptions";
 import connectDB from "@/lib/connectDB";
 import User from "@/lib/models/User";
 import Review from "@/lib/models/Review";
@@ -84,21 +84,21 @@ export async function POST(request: NextRequest) {
     await review.save();
 
     const ratingStats = await Review.aggregate([
-          { $match: { course: review.course } },
-          {
-            $group: {
-              _id: null,
-              averageRating: { $avg: "$rating" },
-              totalReviews: { $sum: 1 },
-            },
-          },
-        ]);
-    
-        if (ratingStats.length > 0) {
-          await Course.findByIdAndUpdate(review.course, {
-            rating: Math.round(ratingStats[0].averageRating * 10) / 10,
-          });
-        }
+      { $match: { course: review.course } },
+      {
+        $group: {
+          _id: null,
+          averageRating: { $avg: "$rating" },
+          totalReviews: { $sum: 1 },
+        },
+      },
+    ]);
+
+    if (ratingStats.length > 0) {
+      await Course.findByIdAndUpdate(review.course, {
+        rating: Math.round(ratingStats[0].averageRating * 10) / 10,
+      });
+    }
 
     return NextResponse.json({
       success: true,

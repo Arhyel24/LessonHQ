@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/utils/authOptions";
 import connectDB from "@/lib/connectDB";
 import User from "@/lib/models/User";
 import Course from "@/lib/models/Course";
@@ -110,7 +110,6 @@ export async function GET(req: Request) {
   }
 }
 
-
 /**
  * POST /api/admin/course/enrol
  * Manually enroll existing user to courses (admin only)
@@ -147,17 +146,16 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-  
-      
-      console.log("Firt check passed");
+
+    console.log("Firt check passed");
 
     // Verify student exists
     const student = await User.findById(studentId);
     if (!student) {
       return NextResponse.json({ error: "Student not found" }, { status: 404 });
-      }
-      
-      console.log("Student found:", student.name);
+    }
+
+    console.log("Student found:", student.name);
 
     // Verify courses exist
     const courses = await Course.find({
@@ -170,9 +168,9 @@ export async function POST(request: NextRequest) {
         { error: "One or more courses not found or not published" },
         { status: 404 }
       );
-      }
-      
-      console.log("Courses found:", courses.map(c => c.title).join(", "));
+    }
+
+    console.log("Courses found:", courses.map((c) => c.title).join(", "));
 
     const enrolledCourses: string[] = [];
     const skippedCourses: string[] = [];

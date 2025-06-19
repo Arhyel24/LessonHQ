@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/utils/authOptions";
 import connectDB from "@/lib/connectDB";
 import User from "@/lib/models/User";
 import Purchase from "@/lib/models/Purchase";
@@ -21,7 +21,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const {userId} = await context.params;
+    const { userId } = await context.params;
 
     await connectDB();
 

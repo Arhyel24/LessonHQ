@@ -1,7 +1,7 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import connectDB from "@/lib/connectDB";
 import Coupon from "@/lib/models/Coupon";
 import User from "@/lib/models/User";
+import { authOptions } from "@/lib/utils/authOptions";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 

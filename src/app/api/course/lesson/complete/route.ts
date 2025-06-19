@@ -4,7 +4,7 @@ import User from "@/lib/models/User";
 import Course from "@/lib/models/Course";
 import Progress from "@/lib/models/Progress";
 import connectDB from "@/lib/connectDB";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/utils/authOptions";
 
 export async function POST(req: NextRequest) {
   await connectDB();
@@ -16,11 +16,14 @@ export async function POST(req: NextRequest) {
 
   const userEmail = session.user?.email;
 
-    const { courseId, lessonId } = await req.json();
-    console.log("Lesson ID:", lessonId)
+  const { courseId, lessonId } = await req.json();
+  console.log("Lesson ID:", lessonId);
 
   if (!courseId || !lessonId) {
-    return NextResponse.json({ error: "Missing courseId or lessonId" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing courseId or lessonId" },
+      { status: 400 }
+    );
   }
 
   try {
@@ -35,21 +38,23 @@ export async function POST(req: NextRequest) {
     }
 
     // Find or create progress record
-      let progress = await Progress.findOne({ user: user._id, course: courseId });
+    let progress = await Progress.findOne({ user: user._id, course: courseId });
 
     if (!progress) {
       progress = await Progress.create({
         user: user._id,
         course: courseId,
         lessonsCompleted: [lessonId],
-        percentage: Math.floor(( 1 / course.lessons.length)  * 100),
+        percentage: Math.floor((1 / course.lessons.length) * 100),
       });
     } else {
-        if (!progress.lessonsCompleted.includes(lessonId)) {
-          progress.lessonsCompleted.push(lessonId);
-          progress.percentage = Math.floor((progress.lessonsCompleted.length / course.lessons.length) * 100)
-          await progress.save();
-        }
+      if (!progress.lessonsCompleted.includes(lessonId)) {
+        progress.lessonsCompleted.push(lessonId);
+        progress.percentage = Math.floor(
+          (progress.lessonsCompleted.length / course.lessons.length) * 100
+        );
+        await progress.save();
+      }
     }
 
     return NextResponse.json({ message: "Lesson marked as completed" });
