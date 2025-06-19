@@ -9,27 +9,24 @@ import User from '@/lib/models/User';
  * GET /api/activity/[id]
  * Get specific activity by ID
  */
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const { id } = params;
+    
+    // Extract ID from request URL
+    // Assuming the URL is something like /api/activity/[id]
+    const id = request.nextUrl.pathname.split("/").pop();
 
     await connectDB();
 
-    // Get user
     const user = await User.findOne({ email: session.user.email });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Get activity
     const activity = await Activity.findOne({
       _id: id,
       user: user._id,
