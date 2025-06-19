@@ -270,7 +270,7 @@ export async function createBulkSystemAnnouncement(
   await Activity.insertMany(activities);
 }
 
-export default {
+const activityUtils = {
   createActivity,
   createCoursePurchaseActivity,
   createLessonCompletionActivity,
@@ -282,5 +282,7 @@ export default {
   createPayoutRequestActivity,
   createPayoutCompletedActivity,
   createSystemAnnouncementActivity,
-  createBulkSystemAnnouncement
+  createBulkSystemAnnouncement,
 };
+
+export default activityUtils;

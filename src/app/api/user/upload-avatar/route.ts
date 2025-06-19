@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
  * DELETE /api/user/upload-avatar
  * Remove user avatar
  */
-export async function DELETE(request: NextRequest) {
+export async function DELETE() {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {

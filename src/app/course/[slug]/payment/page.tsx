@@ -24,7 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useParams, useRouter } from "next/navigation";
 import { ICourseTransformed } from "@/types/Course";
 import Image from "next/image";
-import PaystackPop from "@paystack/inline-js";
+// import PaystackPop from "@paystack/inline-js";
 
 interface Coupon {
   code: string;

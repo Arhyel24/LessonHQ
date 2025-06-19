@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,36 +39,39 @@ export const CourseReviewForm = ({ courseTitle }: CourseReviewFormProps) => {
 
   const { toast } = useToast();
 
-  const fetchReviews = async (pageToLoad = 1) => {
-    try {
-      const url = `/api/course/review/${slug}?page=${pageToLoad}&userId=${
-        userId ?? ""
-      }&sort=${sort}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("Failed to fetch reviews.");
-      const data = await res.json();
+  const fetchReviews = useCallback(
+    async () => {
+      try {
+        const url = `/api/course/review/${slug}?page=${page}&userId=${
+          userId ?? ""
+        }&sort=${sort}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Failed to fetch reviews.");
+        const data = await res.json();
 
-      if (pageToLoad > 1) {
-        setReviews((prev) => [...prev, ...data.data.reviews]);
-      } else {
-        setReviews(data.data.reviews || []);
+        if (page > 1) {
+          setReviews((prev) => [...prev, ...data.data.reviews]);
+        } else {
+          setReviews(data.data.reviews || []);
+        }
+
+        setDistribution(data.data.distribution || {});
+        if (page === 1 && data.data.existingReview) {
+          setComment(data.data.existingReview.comment);
+          setRating(data.data.existingReview.rating);
+        }
+
+        setHasMore(data.data.pagination.hasNext);
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
       }
-
-      setDistribution(data.data.distribution || {});
-      if (pageToLoad === 1 && data.data.existingReview) {
-        setComment(data.data.existingReview.comment);
-        setRating(data.data.existingReview.rating);
-      }
-
-      setHasMore(data.data.pagination.hasNext);
-    } catch (error) {
-      console.error("Error fetching reviews:", error);
-    }
-  };
+    },
+    [userId, sort, page, slug]
+  );
 
   useEffect(() => {
-    if (userId) fetchReviews(1);
-  }, [userId, sort, page]);
+    if (userId) fetchReviews();
+  }, [fetchReviews, userId]);
 
   const handleVote = async (
     reviewId: string,
@@ -124,7 +127,7 @@ export const CourseReviewForm = ({ courseTitle }: CourseReviewFormProps) => {
         description: "Thank you for your feedback. Your review has been saved.",
       });
 
-      fetchReviews(1);
+      fetchReviews();
     } catch (error) {
       toast({
         title: (error as Error).message ?? "Failed to submit review",
@@ -329,7 +332,7 @@ export const CourseReviewForm = ({ courseTitle }: CourseReviewFormProps) => {
                   onClick={() => {
                     const nextPage = page + 1;
                     setPage(nextPage);
-                    fetchReviews(nextPage);
+                    fetchReviews();
                   }}
                   disabled={!hasMore}
                   variant="outline"

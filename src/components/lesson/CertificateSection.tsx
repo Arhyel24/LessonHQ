@@ -29,7 +29,7 @@ export const CertificateSection = ({ isComplete, courseName }: CertificateSectio
         {isComplete ? (
           <div className="space-y-4">
             <p className="font-nunito text-gray-700">
-              🎉 Congratulations! You've completed <strong>{courseName}</strong>. 
+              🎉 Congratulations! You&apos;ve completed <strong>{courseName}</strong>. 
               Download your certificate to showcase your new skills.
             </p>
             <Button

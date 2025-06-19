@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -58,7 +58,7 @@ export const UsersManagement = () => {
     pages: 1,
   });
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const params = {
         page,
@@ -76,11 +76,11 @@ export const UsersManagement = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchTerm, roleFilter, page, limit]);
 
   useEffect(() => {
     fetchUsers();
-  }, [searchTerm, roleFilter, page, limit]);
+  }, [fetchUsers]);
 
   return (
     <div className="space-y-6">

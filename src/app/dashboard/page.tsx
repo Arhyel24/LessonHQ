@@ -9,7 +9,7 @@ import { RecentActivityFeed } from "@/components/dashboard/RecentActivityFeed";
 import { CertificatesSection } from "@/components/dashboard/CertificatesSection";
 
 const Dashboard = () => {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 const fullName = session?.user?.name ?? "User";
 const firstName = fullName.split(" ")[0];
 

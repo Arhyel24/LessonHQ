@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Home, RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,36 +21,39 @@ const Lesson = () => {
   const [currentLesson, setCurrentLesson] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isMarking, setIsMarking] = useState(false)
+  const [isMarking, setIsMarking] = useState(false);
 
-  const fetchLesson = async (lessonId?: string) => {
-    try {
-      const url = lessonId
-        ? `/api/course/learning/${slug}?lessonId=${lessonId}`
-        : `/api/course/learning/${slug}`;
+  const fetchLesson = useCallback(
+    async (lessonId?: string) => {
+      try {
+        const url = lessonId
+          ? `/api/course/learning/${slug}?lessonId=${lessonId}`
+          : `/api/course/learning/${slug}`;
 
-      const res = await fetch(url);
-      const data = await res.json();
+        const res = await fetch(url);
+        const data = await res.json();
 
-      if (!res.ok) {
-        setError(data.error || "Unknown error");
-        return;
+        if (!res.ok) {
+          setError(data.error || "Unknown error");
+          return;
+        }
+
+        setCourse(data.course);
+        setLessons(data.lessons);
+        setCurrentLesson(data.currentLesson);
+      } catch (err) {
+        console.error("Lesson fetch failed:", err);
+        setError("An unexpected error occurred.");
+      } finally {
+        setLoading(false);
       }
-
-      setCourse(data.course);
-      setLessons(data.lessons);
-      setCurrentLesson(data.currentLesson);
-    } catch (err) {
-      console.error("Lesson fetch failed:", err);
-      setError("An unexpected error occurred.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [slug]
+  );
 
   useEffect(() => {
     fetchLesson();
-  }, [slug]);
+  }, [fetchLesson]);
 
   const handleLessonClick = (lessonId: string, isLocked: boolean) => {
     if (isLocked) return;
@@ -59,8 +62,8 @@ const Lesson = () => {
   };
 
   async function markLessonComplete(lessonId: string) {
-    setIsMarking(true)
-    
+    setIsMarking(true);
+
     try {
       const res = await fetch("/api/course/lesson/complete", {
         method: "POST",
@@ -69,19 +72,19 @@ const Lesson = () => {
         },
         body: JSON.stringify({ courseId: course.id, lessonId }),
       });
-  
+
       const data = await res.json();
-  
+
       if (!res.ok) {
         throw new Error(data.error || "Failed to mark lesson as completed.");
       }
-  
+
       toast({
         title: "Lesson marked completed!",
         description: "You can now proceed to the next lesson.",
         variant: "success",
       });
-      fetchLesson()
+      fetchLesson();
     } catch (error: any) {
       console.error("markLessonComplete error:", error.message);
       toast({
@@ -90,11 +93,11 @@ const Lesson = () => {
         variant: "destructive",
       });
     } finally {
-      setIsMarking(false)
+      setIsMarking(false);
     }
   }
 
-  if (loading) return <LoadingScreen message="Loading lesson..."/>
+  if (loading) return <LoadingScreen message="Loading lesson..." />;
 
   if (error) {
     return (
@@ -118,7 +121,6 @@ const Lesson = () => {
       </div>
     );
   }
-  
 
   const isLastLesson = currentLesson?.id === lessons[lessons.length - 1]?.id;
   const isCourseComplete = course.progress === 100;

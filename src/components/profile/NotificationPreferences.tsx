@@ -25,33 +25,33 @@ export const NotificationPreferences = () => {
     referralUpdates: data.email?.referralEarnings ?? true,
     courseAlerts: data.email?.courseUpdates ?? true,
     promotionalEmails: data.email?.promotions ?? false,
-  });
-
-  const fetchPreferences = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/user/notification-preferences");
-      const json = await res.json();
-      if (json.success && json.data) {
-        setPreferences(mapFromApiFormat(json.data));
-      }
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to load preferences.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  });  
 
   useEffect(() => {
+    const fetchPreferences = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/user/notification-preferences");
+        const json = await res.json();
+        if (json.success && json.data) {
+          setPreferences(mapFromApiFormat(json.data));
+        }
+      } catch {
+        toast({
+          title: "Error",
+          description: "Failed to load preferences.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (!mounted.current) {
       fetchPreferences();
       mounted.current = true;
     }
-  }, []);
+  }, [setPreferences, toast]);
 
   return (
     <Card>

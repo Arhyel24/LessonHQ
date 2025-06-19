@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,7 +45,7 @@ const UserActivities = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  const fetchActivities = async () => {
+  const fetchActivities = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams();
     params.set("page", page.toString());
@@ -66,11 +66,11 @@ const UserActivities = () => {
     }
 
     setLoading(false);
-  };
+  }, [searchTerm, selectedCategory, selectedPriority, activeTab, page]);
 
   useEffect(() => {
     fetchActivities();
-  }, [searchTerm, selectedCategory, selectedPriority, activeTab, page]);
+  }, [fetchActivities]);
 
   const getActivityIcon = (type: IActivity["type"]) => {
     switch (type) {
