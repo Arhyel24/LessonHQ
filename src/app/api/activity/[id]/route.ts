@@ -9,14 +9,11 @@ import User from '@/lib/models/User';
  * GET /api/activity/[id]
  * Get specific activity by ID
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET({ params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     await connectDB();
@@ -24,28 +21,30 @@ export async function GET(
     // Get user
     const user = await User.findOne({ email: session.user.email });
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Get activity
     const activity = await Activity.findOne({
       _id: params.id,
-      user: user._id
+      user: user._id,
     });
 
     if (!activity) {
-      return NextResponse.json({ error: 'Activity not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: "Activity not found" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({
       success: true,
-      data: activity
+      data: activity,
     });
-
   } catch (error) {
-    console.error('Activity fetch error:', error);
+    console.error("Activity fetch error:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch activity' },
+      { error: "Failed to fetch activity" },
       { status: 500 }
     );
   }
