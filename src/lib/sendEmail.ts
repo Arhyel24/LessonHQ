@@ -9,17 +9,9 @@ interface EmailOptions {
 }
 
 // Check required environment variables
-const {
-  SITE_NAME,
-  ZOHO_USER,
-  ZOHO_PASSWORD,
-  ZOHO_HOST
-} = process.env;
+const { SITE_NAME, ZOHO_USER, ZOHO_PASSWORD, ZOHO_HOST } = process.env;
 
-if (
-  (!ZOHO_USER ||
-  !ZOHO_PASSWORD || !ZOHO_HOST)
-) {
+if (!ZOHO_USER || !ZOHO_PASSWORD || !ZOHO_HOST) {
   throw new Error("Missing required email environment variables.");
 }
 
@@ -36,7 +28,7 @@ const transporter = nodemailer.createTransport({
 export async function sendEmail(options: EmailOptions) {
   try {
     const mailOptions = {
-      from: `"${SITE_NAME || "MIC Platform"}" <${ZOHO_USER}>`,
+      from: `"${SITE_NAME || "LearnHQ"}" <${ZOHO_USER}>`,
       to: options.to,
       subject: options.subject,
       text: options.text,
@@ -72,7 +64,7 @@ export async function sendSupportEmail(data: {
       </div>
       <div style="margin-top: 20px; padding: 15px; background-color: #eff6ff; border-left: 4px solid #2563eb;">
         <p style="margin: 0; color: #1e40af; font-size: 14px;">
-          This email was sent from the MIC Platform support form.
+          This email was sent from the LearnHQ support form.
         </p>
       </div>
     </div>
@@ -89,11 +81,11 @@ export async function sendWelcomeEmail(userEmail: string, userName: string) {
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <div style="background-color: #2563eb; color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
-        <h1 style="margin: 0;">Welcome to MIC Platform!</h1>
+        <h1 style="margin: 0;">Welcome to LearnHQ!</h1>
       </div>
       <div style="padding: 30px; background-color: #ffffff; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
         <p>Hi ${userName},</p>
-        <p>Welcome to the Massive Income Course Platform! We're excited to have you join our community of learners.</p>
+        <p>Welcome to the LearnHQ Platform! We're excited to have you join our community of learners.</p>
         <p>Here's what you can do next:</p>
         <ul style="line-height: 1.8;">
           <li>Browse our course catalog</li>
@@ -111,7 +103,7 @@ export async function sendWelcomeEmail(userEmail: string, userName: string) {
         <p>Happy learning!</p>
         <p style="margin-top: 30px; color: #6b7280; font-size: 14px;">
           Best regards,<br>
-          The MIC Platform Team
+          The LearnHQ Team
         </p>
       </div>
     </div>
@@ -119,11 +111,10 @@ export async function sendWelcomeEmail(userEmail: string, userName: string) {
 
   return await sendEmail({
     to: userEmail,
-    subject: "Welcome to MIC Platform!",
+    subject: "Welcome to LearnHQ!",
     html: htmlContent,
   });
 }
-
 
 /**
  * Send payment initialization email
@@ -142,13 +133,13 @@ export async function sendPaymentInitializationEmail(
   }
 ): Promise<void> {
   const subject = `Payment Initialized - ${paymentDetails.courseTitle}`;
-  
+
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
       <div style="background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
         <!-- Header -->
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #2563eb; margin: 0; font-size: 28px;">MIC Platform</h1>
+          <h1 style="color: #2563eb; margin: 0; font-size: 28px;">LearnHQ</h1>
           <p style="color: #6b7280; margin: 5px 0 0 0;">Payment Confirmation</p>
         </div>
 
@@ -158,8 +149,14 @@ export async function sendPaymentInitializationEmail(
         <p style="color: #374151; line-height: 1.6;">Hello ${name},</p>
         
         <p style="color: #374151; line-height: 1.6;">
-          Your payment for <strong>"${paymentDetails.courseTitle}"</strong> has been initialized. 
-          ${paymentDetails.finalAmount === 0 ? 'You have been automatically enrolled as this course is free!' : 'Please complete your payment to access the course.'}
+          Your payment for <strong>"${
+            paymentDetails.courseTitle
+          }"</strong> has been initialized. 
+          ${
+            paymentDetails.finalAmount === 0
+              ? "You have been automatically enrolled as this course is free!"
+              : "Please complete your payment to access the course."
+          }
         </p>
 
         <!-- Payment Details Card -->
@@ -169,36 +166,58 @@ export async function sendPaymentInitializationEmail(
           <table style="width: 100%; border-collapse: collapse;">
             <tr>
               <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #e5e7eb;">Course:</td>
-              <td style="padding: 8px 0; color: #1f2937; font-weight: 600; border-bottom: 1px solid #e5e7eb; text-align: right;">${paymentDetails.courseTitle}</td>
+              <td style="padding: 8px 0; color: #1f2937; font-weight: 600; border-bottom: 1px solid #e5e7eb; text-align: right;">${
+                paymentDetails.courseTitle
+              }</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #e5e7eb;">Original Price:</td>
-              <td style="padding: 8px 0; color: #1f2937; border-bottom: 1px solid #e5e7eb; text-align: right;">$${paymentDetails.originalAmount.toFixed(2)}</td>
+              <td style="padding: 8px 0; color: #1f2937; border-bottom: 1px solid #e5e7eb; text-align: right;">$${paymentDetails.originalAmount.toFixed(
+                2
+              )}</td>
             </tr>
-            ${paymentDetails.discountAmount > 0 ? `
+            ${
+              paymentDetails.discountAmount > 0
+                ? `
             <tr>
               <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #e5e7eb;">
-                Discount ${paymentDetails.couponCode ? `(${paymentDetails.couponCode})` : ''}:
+                Discount ${
+                  paymentDetails.couponCode
+                    ? `(${paymentDetails.couponCode})`
+                    : ""
+                }:
               </td>
-              <td style="padding: 8px 0; color: #dc2626; font-weight: 600; border-bottom: 1px solid #e5e7eb; text-align: right;">-$${paymentDetails.discountAmount.toFixed(2)}</td>
+              <td style="padding: 8px 0; color: #dc2626; font-weight: 600; border-bottom: 1px solid #e5e7eb; text-align: right;">-$${paymentDetails.discountAmount.toFixed(
+                2
+              )}</td>
             </tr>
-            ` : ''}
+            `
+                : ""
+            }
             <tr>
               <td style="padding: 12px 0 8px 0; color: #1f2937; font-weight: 600; font-size: 16px;">Total Amount:</td>
               <td style="padding: 12px 0 8px 0; color: #2563eb; font-weight: 700; font-size: 18px; text-align: right;">
-                ${paymentDetails.finalAmount === 0 ? 'FREE' : `$${paymentDetails.finalAmount.toFixed(2)}`}
+                ${
+                  paymentDetails.finalAmount === 0
+                    ? "FREE"
+                    : `$${paymentDetails.finalAmount.toFixed(2)}`
+                }
               </td>
             </tr>
           </table>
           
           <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
             <p style="margin: 0; color: #6b7280; font-size: 14px;">
-              <strong>Payment Reference:</strong> ${paymentDetails.paymentReference}
+              <strong>Payment Reference:</strong> ${
+                paymentDetails.paymentReference
+              }
             </p>
           </div>
         </div>
 
-        ${paymentDetails.finalAmount > 0 && paymentDetails.paymentUrl ? `
+        ${
+          paymentDetails.finalAmount > 0 && paymentDetails.paymentUrl
+            ? `
         <!-- Payment Action -->
         <div style="text-align: center; margin: 30px 0;">
           <a href="${paymentDetails.paymentUrl}" 
@@ -206,30 +225,40 @@ export async function sendPaymentInitializationEmail(
             Complete Payment
           </a>
         </div>
-        ` : ''}
+        `
+            : ""
+        }
 
-        ${paymentDetails.finalAmount === 0 ? `
+        ${
+          paymentDetails.finalAmount === 0
+            ? `
         <!-- Free Course Message -->
         <div style="background-color: #dcfce7; border: 1px solid #bbf7d0; padding: 15px; border-radius: 6px; margin: 20px 0;">
           <p style="margin: 0; color: #166534; font-weight: 600;">
             🎉 Congratulations! You have been automatically enrolled in this course.
           </p>
         </div>
-        ` : ''}
+        `
+            : ""
+        }
 
         <!-- Next Steps -->
         <div style="margin-top: 30px;">
           <h3 style="color: #1f2937; margin-bottom: 15px;">What's Next?</h3>
           <ul style="color: #374151; line-height: 1.6; padding-left: 20px;">
-            ${paymentDetails.finalAmount === 0 ? `
+            ${
+              paymentDetails.finalAmount === 0
+                ? `
             <li>Access your course immediately from your dashboard</li>
             <li>Start learning at your own pace</li>
             <li>Track your progress and earn certificates</li>
-            ` : `
+            `
+                : `
             <li>Complete your payment using the link above</li>
             <li>You'll receive another email once payment is confirmed</li>
             <li>Access your course immediately after payment</li>
-            `}
+            `
+            }
           </ul>
         </div>
 
@@ -245,7 +274,7 @@ export async function sendPaymentInitializationEmail(
         <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
           <p style="color: #6b7280; font-size: 14px; margin: 0;">
             Best regards,<br>
-            <strong>The MIC Platform Team</strong>
+            <strong>The LearnHQ Team</strong>
           </p>
         </div>
       </div>
@@ -273,13 +302,13 @@ export async function sendPaymentSuccessEmail(
   }
 ): Promise<void> {
   const subject = `Payment Successful - Welcome to ${paymentDetails.courseTitle}!`;
-  
+
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
       <div style="background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
         <!-- Header -->
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #2563eb; margin: 0; font-size: 28px;">MIC Platform</h1>
+          <h1 style="color: #2563eb; margin: 0; font-size: 28px;">LearnHQ</h1>
           <p style="color: #6b7280; margin: 5px 0 0 0;">Payment Confirmation</p>
         </div>
 
@@ -303,23 +332,39 @@ export async function sendPaymentSuccessEmail(
           <table style="width: 100%; border-collapse: collapse;">
             <tr>
               <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #e5e7eb;">Course:</td>
-              <td style="padding: 8px 0; color: #1f2937; font-weight: 600; border-bottom: 1px solid #e5e7eb; text-align: right;">${paymentDetails.courseTitle}</td>
+              <td style="padding: 8px 0; color: #1f2937; font-weight: 600; border-bottom: 1px solid #e5e7eb; text-align: right;">${
+                paymentDetails.courseTitle
+              }</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #e5e7eb;">Original Price:</td>
-              <td style="padding: 8px 0; color: #1f2937; border-bottom: 1px solid #e5e7eb; text-align: right;">$${paymentDetails.originalAmount.toFixed(2)}</td>
+              <td style="padding: 8px 0; color: #1f2937; border-bottom: 1px solid #e5e7eb; text-align: right;">$${paymentDetails.originalAmount.toFixed(
+                2
+              )}</td>
             </tr>
-            ${paymentDetails.discountAmount > 0 ? `
+            ${
+              paymentDetails.discountAmount > 0
+                ? `
             <tr>
               <td style="padding: 8px 0; color: #6b7280; border-bottom: 1px solid #e5e7eb;">
-                Discount ${paymentDetails.couponCode ? `(${paymentDetails.couponCode})` : ''}:
+                Discount ${
+                  paymentDetails.couponCode
+                    ? `(${paymentDetails.couponCode})`
+                    : ""
+                }:
               </td>
-              <td style="padding: 8px 0; color: #dc2626; font-weight: 600; border-bottom: 1px solid #e5e7eb; text-align: right;">-$${paymentDetails.discountAmount.toFixed(2)}</td>
+              <td style="padding: 8px 0; color: #dc2626; font-weight: 600; border-bottom: 1px solid #e5e7eb; text-align: right;">-$${paymentDetails.discountAmount.toFixed(
+                2
+              )}</td>
             </tr>
-            ` : ''}
+            `
+                : ""
+            }
             <tr>
               <td style="padding: 12px 0 8px 0; color: #1f2937; font-weight: 600; font-size: 16px;">Amount Paid:</td>
-              <td style="padding: 12px 0 8px 0; color: #2563eb; font-weight: 700; font-size: 18px; text-align: right;">$${paymentDetails.finalAmount.toFixed(2)}</td>
+              <td style="padding: 12px 0 8px 0; color: #2563eb; font-weight: 700; font-size: 18px; text-align: right;">$${paymentDetails.finalAmount.toFixed(
+                2
+              )}</td>
             </tr>
           </table>
           
@@ -327,17 +372,22 @@ export async function sendPaymentSuccessEmail(
             <table style="width: 100%; font-size: 14px; color: #6b7280;">
               <tr>
                 <td><strong>Payment Reference:</strong></td>
-                <td style="text-align: right;">${paymentDetails.paymentReference}</td>
+                <td style="text-align: right;">${
+                  paymentDetails.paymentReference
+                }</td>
               </tr>
               <tr>
                 <td><strong>Payment Date:</strong></td>
-                <td style="text-align: right;">${paymentDetails.paidAt.toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}</td>
+                <td style="text-align: right;">${paymentDetails.paidAt.toLocaleDateString(
+                  "en-US",
+                  {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }
+                )}</td>
               </tr>
             </table>
           </div>
@@ -345,7 +395,9 @@ export async function sendPaymentSuccessEmail(
 
         <!-- Course Access -->
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${process.env.NEXTAUTH_URL}/courses/${paymentDetails.courseId}" 
+          <a href="${process.env.NEXTAUTH_URL}/courses/${
+    paymentDetails.courseId
+  }" 
              style="background-color: #2563eb; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; font-size: 16px;">
             Start Learning Now
           </a>
@@ -392,7 +444,7 @@ export async function sendPaymentSuccessEmail(
         <!-- Footer -->
         <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
           <p style="color: #6b7280; font-size: 14px; margin: 0;">
-            Thank you for choosing MIC Platform!<br>
+            Thank you for choosing LearnHQ!<br>
             <strong>Happy Learning!</strong>
           </p>
         </div>
@@ -408,7 +460,7 @@ export async function sendPaymentSuccessEmail(
 */
 export async function sendVerificationEmail(
   userEmail: string,
-  userName: string,
+  userName: string
 ) {
   const token = jwt.sign(
     { email: userEmail },
@@ -419,7 +471,7 @@ export async function sendVerificationEmail(
   const verifyLink = `${process.env.NEXT_PUBLIC_BASE_URL}/email-verification?token=${token}`;
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; color: #333;">
-      <h2>Welcome to MIC Platform, ${userName}!</h2>
+      <h2>Welcome to LearnHQ, ${userName}!</h2>
       <p>Thank you for signing up. Please verify your email address to activate your account.</p>
       <p style="margin: 20px 0;">
         <a 
@@ -438,7 +490,7 @@ export async function sendVerificationEmail(
 
   return await sendEmail({
     to: userEmail,
-    subject: "Welcome to MIC Platform – Verify Your Email",
+    subject: "Welcome to LearnHQ – Verify Your Email",
     text: `Hi ${userName},\n\nThank you for signing up. Please verify your email address by clicking the link below:\n\n${verifyLink}\n\nIf you didn't create an account, please ignore this email.`,
     html: htmlContent,
   });
@@ -455,7 +507,7 @@ export async function sendEmailVerifiedMessage(
     <div style="font-family: Arial, sans-serif; color: #333;">
       <h2>Email Successfully Verified 🎉</h2>
       <p>Hi ${userName},</p>
-      <p>Your email has been successfully verified. You can now enjoy full access to all features on the MIC Platform.</p>
+      <p>Your email has been successfully verified. You can now enjoy full access to all features on the LearnHQ.</p>
       <p>Welcome aboard and happy learning!</p>
       <hr />
       <p style="font-size: 12px; color: #777;">If you didn't verify your email, please contact support immediately.</p>
@@ -465,7 +517,7 @@ export async function sendEmailVerifiedMessage(
   return await sendEmail({
     to: userEmail,
     subject: "Your Email Has Been Verified – Welcome to MIC!",
-    text: `Hi ${userName},\n\nYour email has been successfully verified. You can now enjoy full access to all features on the MIC Platform.\n\nWelcome aboard and happy learning!`,
+    text: `Hi ${userName},\n\nYour email has been successfully verified. You can now enjoy full access to all features on the LearnHQ.\n\nWelcome aboard and happy learning!`,
     html: htmlContent,
   });
 }

@@ -194,9 +194,9 @@ const CoursePayment = () => {
           variant: "destructive",
         });
         return;
-      }      
+      }
 
-      console.log("Payment data:", json)
+      console.log("Payment data:", json);
 
       if (data.enrolled) {
         // Free enrollment successful
@@ -207,10 +207,10 @@ const CoursePayment = () => {
         setTimeout(() => {
           router.push(`/course/${slug}/lesson`);
         }, 2000);
-      // } else if (data.accessCode) {
-      //   // Use Paystack popup
-      //   const popup = new PaystackPop();
-      //   popup.resumeTransaction(data.accessCode);
+        // } else if (data.accessCode) {
+        //   // Use Paystack popup
+        //   const popup = new PaystackPop();
+        //   popup.resumeTransaction(data.accessCode);
       } else if (data.paymentUrl) {
         // Paid course, redirect to Paystack
         window.location.href = data.paymentUrl;
@@ -273,7 +273,9 @@ const CoursePayment = () => {
                     width={80}
                     height={80}
                     quality={80}
-                    loader={({ src }) => src}
+                    loader={({ src, width, quality }) =>
+                      `${src}?w=${width}&q=${quality || 75}`
+                    }
                   />
                   <div className="flex-1">
                     <h3 className="font-semibold text-lg">{course.title}</h3>

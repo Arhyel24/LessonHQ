@@ -40,7 +40,7 @@ export const CTAFooter = () => {
           <div className="grid md:grid-cols-3 gap-8">
             <div className="space-y-4">
               <h3 className="font-poppins font-bold text-xl text-accent">
-                Massive Income Course
+                LearnHQ
               </h3>
               <p className="font-nunito text-gray-400">
                 Empowering Africans to build sustainable online income through
@@ -116,7 +116,7 @@ export const CTAFooter = () => {
 
           <div className="border-t border-gray-700 mt-8 pt-8 text-center">
             <p className="font-nunito text-gray-400">
-             {` © ${new Date().getFullYear()} Massive Income Course. All rights reserved.`}
+              {` © ${new Date().getFullYear()} LearnHQ. All rights reserved.`}
               <span className="text-accent"> Made with ❤️ for Africa</span>
             </p>
           </div>

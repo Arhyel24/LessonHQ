@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import connectDB from '@/lib/connectDB';
-import User from '@/lib/models/User';
-import { sendEmail } from '@/lib/sendEmail';
-import { createActivity } from '@/lib/utils/activityHelper';
-import { hashPassword } from '@/lib/auth';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import connectDB from "@/lib/connectDB";
+import User from "@/lib/models/User";
+import { sendEmail } from "@/lib/sendEmail";
+import { createActivity } from "@/lib/utils/activityHelper";
+import { hashPassword } from "@/lib/auth";
 
 /**
  * POST /api/admin/users/enrol
@@ -15,24 +15,27 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     await connectDB();
 
     // Check if user is admin
     const adminUser = await User.findOne({ email: session.user.email });
-    if (!adminUser || adminUser.role !== 'admin') {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    if (!adminUser || adminUser.role !== "admin") {
+      return NextResponse.json(
+        { error: "Admin access required" },
+        { status: 403 }
+      );
     }
 
     const body = await request.json();
-    const { name, email, role = 'student', referralCode } = body;
+    const { name, email, role = "student", referralCode } = body;
 
     // Validate required fields
     if (!name || !email) {
       return NextResponse.json(
-        { error: 'Name and email are required' },
+        { error: "Name and email are required" },
         { status: 400 }
       );
     }
@@ -41,7 +44,7 @@ export async function POST(request: NextRequest) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return NextResponse.json(
-        { error: 'Invalid email format' },
+        { error: "Invalid email format" },
         { status: 400 }
       );
     }
@@ -50,14 +53,14 @@ export async function POST(request: NextRequest) {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return NextResponse.json(
-        { error: 'User with this email already exists' },
+        { error: "User with this email already exists" },
         { status: 400 }
       );
     }
 
     // Generate random password
     const generatedPassword = generateRandomPassword();
-    
+
     // Hash the password
     const hashedPassword = await hashPassword(generatedPassword);
 
@@ -70,7 +73,7 @@ export async function POST(request: NextRequest) {
       const referrer = await User.findOne({ referralCode });
       if (!referrer) {
         return NextResponse.json(
-          { error: 'Invalid referral code' },
+          { error: "Invalid referral code" },
           { status: 400 }
         );
       }
@@ -85,7 +88,7 @@ export async function POST(request: NextRequest) {
       role,
       referralCode: userReferralCode,
       referredBy,
-      referralEarnings: 0
+      referralEarnings: 0,
     });
 
     await newUser.save();
@@ -94,36 +97,37 @@ export async function POST(request: NextRequest) {
     try {
       await sendWelcomeEmail(email, name, generatedPassword);
     } catch (emailError) {
-      console.error('Failed to send welcome email:', emailError);
+      console.error("Failed to send welcome email:", emailError);
       // Don't fail the user creation if email fails
     }
 
     // Create activity for the new user
     await createActivity({
       userId: newUser._id.toString(),
-      type: 'profile_updated',
-      title: 'Welcome to MIC Platform!',
-      message: 'Your account has been created by an administrator. Check your email for login credentials.',
-      category: 'system',
-      priority: 'high'
+      type: "profile_updated",
+      title: "Welcome to LearnHQ!",
+      message:
+        "Your account has been created by an administrator. Check your email for login credentials.",
+      category: "system",
+      priority: "high",
     });
 
     // Create activity for admin
     await createActivity({
       userId: adminUser._id.toString(),
-      type: 'system_announcement',
-      title: 'User Enrolled',
+      type: "system_announcement",
+      title: "User Enrolled",
       message: `You successfully enrolled ${name} (${email}) as a ${role}.`,
-      category: 'system',
-      priority: 'medium',
+      category: "system",
+      priority: "medium",
       data: {
         enrolledUser: {
           id: newUser._id,
           name,
           email,
-          role
-        }
-      }
+          role,
+        },
+      },
     });
 
     return NextResponse.json({
@@ -136,16 +140,16 @@ export async function POST(request: NextRequest) {
         referralCode: newUser.referralCode,
         coursesEnrolled: 0,
         referralEarnings: 0,
-        joinedAt: newUser.createdAt.toISOString().split('T')[0],
-        status: 'active'
+        joinedAt: newUser.createdAt.toISOString().split("T")[0],
+        status: "active",
       },
-      message: 'User enrolled successfully. Welcome email sent with login credentials.'
+      message:
+        "User enrolled successfully. Welcome email sent with login credentials.",
     });
-
   } catch (error) {
-    console.error('User enrollment error:', error);
+    console.error("User enrollment error:", error);
     return NextResponse.json(
-      { error: 'Failed to enroll user' },
+      { error: "Failed to enroll user" },
       { status: 500 }
     );
   }
@@ -153,29 +157,33 @@ export async function POST(request: NextRequest) {
 
 // Helper function to generate random password
 function generateRandomPassword(length: number = 12): string {
-  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
-  let password = '';
-  
+  const charset =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+  let password = "";
+
   // Ensure at least one of each type
-  password += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 26)]; // Uppercase
-  password += 'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random() * 26)]; // Lowercase
-  password += '0123456789'[Math.floor(Math.random() * 10)]; // Number
-  password += '!@#$%^&*'[Math.floor(Math.random() * 8)]; // Special char
-  
+  password += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[Math.floor(Math.random() * 26)]; // Uppercase
+  password += "abcdefghijklmnopqrstuvwxyz"[Math.floor(Math.random() * 26)]; // Lowercase
+  password += "0123456789"[Math.floor(Math.random() * 10)]; // Number
+  password += "!@#$%^&*"[Math.floor(Math.random() * 8)]; // Special char
+
   // Fill the rest randomly
   for (let i = 4; i < length; i++) {
     password += charset[Math.floor(Math.random() * charset.length)];
   }
-  
+
   // Shuffle the password
-  return password.split('').sort(() => Math.random() - 0.5).join('');
+  return password
+    .split("")
+    .sort(() => Math.random() - 0.5)
+    .join("");
 }
 
 // Helper function to generate unique referral code
 async function generateUniqueReferralCode(): Promise<string> {
   let code = "";
   let isUnique = false;
-  
+
   while (!isUnique) {
     code = Math.random().toString(36).substring(2, 8).toUpperCase();
     const existingUser = await User.findOne({ referralCode: code });
@@ -183,16 +191,20 @@ async function generateUniqueReferralCode(): Promise<string> {
       isUnique = true;
     }
   }
-  
+
   return code;
 }
 
 // Helper function to send welcome email
-async function sendWelcomeEmail(email: string, name: string, password: string): Promise<void> {
-  const subject = 'Welcome to MIC Platform - Your Account Details';
+async function sendWelcomeEmail(
+  email: string,
+  name: string,
+  password: string
+): Promise<void> {
+  const subject = "Welcome to LearnHQ - Your Account Details";
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #2563eb;">Welcome to MIC Platform!</h2>
+      <h2 style="color: #2563eb;">Welcome to LearnHQ!</h2>
       
       <p>Hello ${name},</p>
       
@@ -209,13 +221,13 @@ async function sendWelcomeEmail(email: string, name: string, password: string): 
       
       <p>If you have any questions, please don't hesitate to contact our support team.</p>
       
-      <p>Best regards,<br>The MIC Platform Team</p>
+      <p>Best regards,<br>The LearnHQ Team</p>
     </div>
   `;
 
   await sendEmail({
     to: email,
     subject,
-    html
+    html,
   });
 }

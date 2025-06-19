@@ -1,18 +1,24 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { MessageCircle, ExternalLink } from "lucide-react";
 
 export const WhatsAppSupport = () => {
   const handleWhatsAppClick = () => {
     const message = encodeURIComponent(
-      "Hi! I need help with my Massive Income Course account. Can you assist me?"
+      "Hi! I need help with my LearnHQ account. Can you assist me?"
     );
     const phoneNumber = process.env.PHONE_NUMBER;
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
-    
-    window.open(whatsappUrl, '_blank');
+
+    window.open(whatsappUrl, "_blank");
   };
 
   return (

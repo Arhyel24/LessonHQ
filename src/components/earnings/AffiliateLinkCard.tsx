@@ -53,7 +53,7 @@ export const AffiliateLinkCard = ({
   };
 
   const shareTwitter = () => {
-    const text = `Join me on this amazing learning platform! 🚀 #MassiveIncomeCourse`;
+    const text = `Join me on this amazing learning platform! 🚀 #LearnHQCourse`;
     window.open(
       `https://twitter.com/intent/tweet?text=${encodeURIComponent(
         text

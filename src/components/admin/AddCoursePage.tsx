@@ -52,7 +52,7 @@ export const AddCoursePage = ({ onBack }: AddCoursePageProps) => {
   const [lessons, setLessons] = useState<Lesson[]>([
     { id: "1", title: "", videoUrl: "", content: "", duration: 0, order: 1 },
   ]);
-  
+
   const [isLoading, setIsLoading] = useState(false);
 
   const addLesson = () => {
@@ -171,7 +171,6 @@ export const AddCoursePage = ({ onBack }: AddCoursePageProps) => {
       setIsLoading(false);
     }
   };
-  
 
   return (
     <div className="space-y-6">
@@ -415,7 +414,9 @@ export const AddCoursePage = ({ onBack }: AddCoursePageProps) => {
                           className="w-32 h-20 object-cover rounded border"
                           width={128}
                           height={80}
-                          loader={({ src }) => src}
+                          loader={({ src, width, quality }) =>
+                            `${src}?w=${width}&q=${quality || 75}`
+                          }
                           quality={80}
                         />
                       )}

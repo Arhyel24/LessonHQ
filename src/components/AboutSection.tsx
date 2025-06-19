@@ -7,7 +7,7 @@ export const AboutSection = () => {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6 animate-slide-in">
             <h2 className="font-poppins font-bold text-3xl md:text-4xl text-gray-900">
-              About <span className="text-primary">Massive Income Course</span>
+              About <span className="text-primary">LearnHQ</span>
             </h2>
 
             <p className="font-nunito text-lg text-gray-600 leading-relaxed">
@@ -33,7 +33,9 @@ export const AboutSection = () => {
                   className="w-full h-full object-cover"
                   width={300}
                   height={300}
-                  loader={({ src }) => src}
+                  loader={({ src, width, quality }) =>
+                    `${src}?w=${width}&q=${quality || 75}`
+                  }
                   quality={80}
                 />
               </div>

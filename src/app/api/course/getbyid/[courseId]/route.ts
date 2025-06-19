@@ -83,7 +83,7 @@ export async function GET(
       duration,
       difficulty: course.difficulty || "Intermediate",
       modules: course.lessons?.map((l) => l.title) ?? [],
-      instructor: course.instructor || "MIC Team",
+      instructor: course.instructor || "LearnHQ Team",
       price: course.price,
       originalPrice: course.originalPrice,
       rating: course.rating ?? 4.8,

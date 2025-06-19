@@ -133,7 +133,7 @@ const Login = () => {
           {/* Logo/Header */}
           <div className="text-center mb-8">
             <h1 className="font-poppins font-bold text-2xl text-primary mb-2">
-              Massive Income Course
+              LearnHQ
             </h1>
             <p className="font-nunito text-gray-600">Sign in to your account</p>
           </div>

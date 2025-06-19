@@ -128,7 +128,7 @@ ${topCourses.map((c) => `${c.title},${c.enrollments},$${c.revenue}`).join("\n")}
         
         <p>Report generated on: ${new Date().toLocaleString()}</p>
         
-        <p>Best regards,<br>MIC Platform Analytics System</p>
+        <p>Best regards,<br>LearnHQ Analytics System</p>
       </div>
     `;
 

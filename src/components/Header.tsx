@@ -59,7 +59,7 @@ export function Header() {
               <span className="font-bold text-primary-foreground">MIC</span>
             </div>
             <span className="hidden font-bold text-xl text-gray-900 md:inline-flex">
-              Massive Income Course
+              LearnHQ
             </span>
           </Link>
 

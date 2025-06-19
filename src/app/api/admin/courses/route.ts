@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
       originalPrice,
       lessons: formattedLessons,
       difficulty: difficulty || "Intermediate",
-      instructor: instructor || "MIC Team",
+      instructor: instructor || "LearnHQ Team",
       status,
       enrollmentCount: 0,
       rating: 4.8,
@@ -231,19 +231,22 @@ export async function PUT(
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     await connectDB();
 
     // Check if user is admin
     const user = await User.findOne({ email: session.user.email });
-    if (!user || user.role !== 'admin') {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    if (!user || user.role !== "admin") {
+      return NextResponse.json(
+        { error: "Admin access required" },
+        { status: 403 }
+      );
     }
 
     const body = await request.json();
-    
+
     // Update course
     const course = await Course.findByIdAndUpdate(
       params.id,
@@ -252,19 +255,18 @@ export async function PUT(
     );
 
     if (!course) {
-      return NextResponse.json({ error: 'Course not found' }, { status: 404 });
+      return NextResponse.json({ error: "Course not found" }, { status: 404 });
     }
 
     return NextResponse.json({
       success: true,
       data: course,
-      message: 'Course updated successfully'
+      message: "Course updated successfully",
     });
-
   } catch (error) {
-    console.error('Course update error:', error);
+    console.error("Course update error:", error);
     return NextResponse.json(
-      { error: 'Failed to update course' },
+      { error: "Failed to update course" },
       { status: 500 }
     );
   }
@@ -281,7 +283,7 @@ export async function DELETE(
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { id } = params;
@@ -290,15 +292,18 @@ export async function DELETE(
 
     // Check if user is admin
     const user = await User.findOne({ email: session.user.email });
-    if (!user || user.role !== 'admin') {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    if (!user || user.role !== "admin") {
+      return NextResponse.json(
+        { error: "Admin access required" },
+        { status: 403 }
+      );
     }
 
     // Check if course has any purchases
     const purchaseCount = await Purchase.countDocuments({ course: id });
     if (purchaseCount > 0) {
       return NextResponse.json(
-        { error: 'Cannot delete course with existing purchases' },
+        { error: "Cannot delete course with existing purchases" },
         { status: 400 }
       );
     }
@@ -306,7 +311,7 @@ export async function DELETE(
     // Delete course
     const course = await Course.findByIdAndDelete(id);
     if (!course) {
-      return NextResponse.json({ error: 'Course not found' }, { status: 404 });
+      return NextResponse.json({ error: "Course not found" }, { status: 404 });
     }
 
     // Clean up related progress records
@@ -314,13 +319,12 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      message: 'Course deleted successfully'
+      message: "Course deleted successfully",
     });
-
   } catch (error) {
-    console.error('Course deletion error:', error);
+    console.error("Course deletion error:", error);
     return NextResponse.json(
-      { error: 'Failed to delete course' },
+      { error: "Failed to delete course" },
       { status: 500 }
     );
   }

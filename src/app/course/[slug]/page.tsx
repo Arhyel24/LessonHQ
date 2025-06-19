@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import {useState, useEffect} from "react"
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -15,7 +15,7 @@ const CourseDetail = () => {
 
   const [course, setCourse] = useState<ICourseTransformed | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -23,7 +23,7 @@ const CourseDetail = () => {
         const res = await fetch(`/api/course/getbyslug/${slug}`);
         if (!res.ok) throw new Error("Not found");
 
-        const json = await res.json();  
+        const json = await res.json();
         if (!json.data) throw new Error("No course data");
 
         console.log("Course data:", json);
@@ -31,7 +31,7 @@ const CourseDetail = () => {
         setCourse(json.data);
       } catch (error) {
         console.error("Error loading course:", error);
-        setError("Error loading courses, please reload or go back")
+        setError("Error loading courses, please reload or go back");
       } finally {
         setLoading(false);
       }
@@ -48,11 +48,11 @@ const CourseDetail = () => {
 
   const handleButtonClick = () => {
     if (!course?.isEnrolled) {
-      router.push(`/course/${slug}/payment`)
+      router.push(`/course/${slug}/payment`);
     } else {
-      router.push(`/course/${slug}/lesson`)
+      router.push(`/course/${slug}/lesson`);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -65,27 +65,27 @@ const CourseDetail = () => {
   if (!course) return null; // Shouldn't reach here, but just in case
 
   if (error) {
-      return (
-        <div className="flex flex-col items-center justify-center min-h-screen text-center px-4">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-2">Oops!</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
-          <div className="flex gap-4">
-            <Button
-              onClick={() => router.refresh()}
-              className="bg-secondary text-white"
-            >
-              Refresh
-            </Button>
-            <Button
-              onClick={() => router.push("/courses")}
-              className="bg-primary text-white"
-            >
-              Back to Courses
-            </Button>
-          </div>
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen text-center px-4">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-2">Oops!</h2>
+        <p className="text-gray-600 mb-6">{error}</p>
+        <div className="flex gap-4">
+          <Button
+            onClick={() => router.refresh()}
+            className="bg-secondary text-white"
+          >
+            Refresh
+          </Button>
+          <Button
+            onClick={() => router.push("/courses")}
+            className="bg-primary text-white"
+          >
+            Back to Courses
+          </Button>
         </div>
-      );
-    }
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -115,7 +115,9 @@ const CourseDetail = () => {
                 className="w-full h-64 md:h-80 object-cover"
                 width={800}
                 height={400}
-                loader={({ src }) => src}
+                loader={({ src, width, quality }) =>
+                  `${src}?w=${width}&q=${quality || 75}`
+                }
                 quality={80}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">

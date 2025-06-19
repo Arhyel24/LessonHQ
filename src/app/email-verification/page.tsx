@@ -96,7 +96,7 @@ const EmailVerification = () => {
         <div className="max-w-md mx-auto px-4">
           <Link href="/" className="inline-block">
             <h1 className="font-poppins font-bold text-xl text-primary">
-              Massive Income Course
+              LearnHQ
             </h1>
           </Link>
         </div>

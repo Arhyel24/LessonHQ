@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
 export type FilterType = "all" | "in-progress" | "completed" | "not-started";
 
@@ -29,15 +29,13 @@ export interface ICourse extends Document {
   updatedAt: Date;
 }
 
-const LessonSchema = new Schema<ILesson>(
-  {
-    title: { type: String, required: true },
-    videoUrl: { type: String, required: true },
-    textContent: { type: String, required: true },
-    duration: { type: Number, default: 10 },
-    order: { type: Number },
-  },
-);
+const LessonSchema = new Schema<ILesson>({
+  title: { type: String, required: true },
+  videoUrl: { type: String, required: true },
+  textContent: { type: String, required: true },
+  duration: { type: Number, default: 10 },
+  order: { type: Number },
+});
 
 const CourseSchema = new Schema<ICourse>({
   title: { type: String, required: true },
@@ -53,7 +51,7 @@ const CourseSchema = new Schema<ICourse>({
     enum: ["Beginner", "Intermediate", "Advanced"],
     default: "Intermediate",
   },
-  instructor: { type: String, default: "MIC Team" },
+  instructor: { type: String, default: "LearnHQ Team" },
   rating: { type: Number, default: 4.8, min: 0, max: 5 },
   enrollmentCount: { type: Number, default: 0 },
   status: {
@@ -67,7 +65,7 @@ const CourseSchema = new Schema<ICourse>({
 });
 
 // Update the updatedAt field on save
-CourseSchema.pre('save', function(next) {
+CourseSchema.pre("save", function (next) {
   this.updatedAt = new Date();
   next();
 });
@@ -75,4 +73,5 @@ CourseSchema.pre('save', function(next) {
 // Index for efficient queries
 CourseSchema.index({ status: 1, createdAt: -1 });
 
-export default mongoose.models.Course || mongoose.model<ICourse>('Course', CourseSchema);
+export default mongoose.models.Course ||
+  mongoose.model<ICourse>("Course", CourseSchema);

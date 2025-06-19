@@ -52,7 +52,9 @@ export const CourseCard = ({ course, index }: CourseCardProps) => {
           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
           width={600}
           height={300}
-          loader={({ src }) => src}
+          loader={({ src, width, quality }) =>
+            `${src}?w=${width}&q=${quality || 75}`
+          }
           quality={80}
         />
         <div className="absolute top-4 left-4 text-3xl bg-white rounded-full w-12 h-12 flex items-center justify-center shadow-md">
