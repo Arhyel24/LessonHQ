@@ -115,7 +115,7 @@ export async function GET() {
         earningsThisMonth: Math.floor(earningsThisMonth),
         successfulAffiliates,
         pendingAffiliates,
-        AffiliateLink: `https://mic.dev.app/auth/signup?ref=${user.referralCode}`,
+        AffiliateLink: `${process.env.NEXTAUTH_URL}/auth/signup?ref=${user.referralCode}`,
         history,
       },
     });
