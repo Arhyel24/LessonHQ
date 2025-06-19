@@ -1,5 +1,3 @@
-
-import { AdminSection } from "@/app/admin/main/page";
 import { Button } from "@/components/ui/button";
 import { 
   LayoutDashboard, 
@@ -12,6 +10,7 @@ import {
   X,
   Ticket
 } from "lucide-react";
+import { AdminSection } from "./AdminPage";
 
 interface AdminSidebarProps {
   activeSection: AdminSection;
