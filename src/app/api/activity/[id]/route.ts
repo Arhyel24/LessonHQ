@@ -9,14 +9,17 @@ import User from '@/lib/models/User';
  * GET /api/activity/[id]
  * Get specific activity by ID
  */
-export async function GET(req: NextRequest, context: { params: { id: string } }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = context.params;
+    const { id } = params;
 
     await connectDB();
 
