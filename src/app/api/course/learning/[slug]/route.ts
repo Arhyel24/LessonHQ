@@ -37,7 +37,7 @@ interface CurrentLesson {
 
 export async function GET(
   req: NextRequest,
-  context: { params: { slug: string } }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);

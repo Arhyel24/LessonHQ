@@ -14,18 +14,18 @@ import { createActivity } from "@/lib/utils/activityHelper";
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  context: { params: Promise<{ slug: string }> }
 ) {
-    try {
-      const session = await getServerSession(authOptions);
-        if (!session?.user?.email) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const user = await User.findOne({ email: session.user.email });
-        if (!user) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
-        }
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
 
     await connectDB();
 
@@ -43,7 +43,7 @@ export async function GET(
 
     const skip = (page - 1) * limit;
 
-    const { slug } = await params;
+    const { slug } = await context.params;
 
     const course = await Course.findOne({
       slug,
@@ -122,7 +122,6 @@ export async function GET(
         }),
       };
     });
-      
 
     interface ExistingReview {
       rating: number;
@@ -180,7 +179,7 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -190,7 +189,7 @@ export async function POST(
 
     await connectDB();
 
-    const { slug } = await params;
+    const { slug } = await context.params;
 
     const user = await User.findOne({ email: session.user.email });
     if (!user) {

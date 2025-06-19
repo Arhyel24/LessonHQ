@@ -10,13 +10,13 @@ import { Types } from "mongoose";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { courseId: string } }
+  context: { params: Promise<{ courseId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
     await connectDB();
 
-    const { courseId } = params;
+    const { courseId } = await context.params;
 
     // Only accept valid MongoDB ObjectId
     if (!Types.ObjectId.isValid(courseId)) {

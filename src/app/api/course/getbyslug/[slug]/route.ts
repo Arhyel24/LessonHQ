@@ -13,14 +13,13 @@ import User, { IUser } from "@/lib/models/User";
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
     await connectDB();
 
-    const param = await params;
-    const slug = param.slug;
+    const { slug } = await context.params;
 
     const course = await Course.findOne({ slug }).lean<ICourse>();
 
