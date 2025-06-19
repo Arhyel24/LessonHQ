@@ -60,7 +60,13 @@ export async function POST(request: NextRequest) {
       // Upload to Vercel Blob
       const blob = await put(filename, file, {
         access: "public",
-        handleUploadUrl: "/api/user/upload-avatar",
+        addRandomSuffix: true,
+        allowOverwrite: true,
+        onUploadProgress: ({ loaded, percentage, total }) => {
+          console.log("Bytes sent:", loaded);
+          console.log("Total Bytes:", total);
+          console.log("Progress:", percentage);
+        },
       });
 
       // Update user avatar URL
@@ -85,10 +91,10 @@ export async function POST(request: NextRequest) {
         data: {
           avatar: blob.url,
           user: {
-            id: updatedUser._id,
-            name: updatedUser.name,
-            email: updatedUser.email,
-            avatar: updatedUser.avatar,
+            id: updatedUser?._id,
+            name: updatedUser?.name,
+            email: updatedUser?.email,
+            avatar: updatedUser?.avatar,
           },
         },
         message: "Avatar uploaded successfully",
