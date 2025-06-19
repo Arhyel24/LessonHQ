@@ -42,8 +42,7 @@ CouponSchema.pre("save", function (next) {
   next();
 });
 
-// Index for efficient queries
-CouponSchema.index({ code: 1 });
+// Index for efficient queries;
 CouponSchema.index({ isValid: 1, expiresAt: 1 });
 
 export default mongoose.models.Coupon ||

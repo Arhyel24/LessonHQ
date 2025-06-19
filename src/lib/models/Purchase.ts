@@ -34,7 +34,6 @@ const PurchaseSchema = new Schema<IPurchase>({
 
 // Index for efficient queries
 PurchaseSchema.index({ user: 1, course: 1 });
-PurchaseSchema.index({ paymentReference: 1 });
 PurchaseSchema.index({ status: 1, createdAt: -1 });
 
 export default mongoose.models.Purchase ||
