@@ -19,8 +19,9 @@ export interface IActivity extends Document {
     | "password_changed"
     | "login_success"
     | "login_failed"
-    | "course_reviewed";
-  title: string;  
+    | "course_reviewed"
+    | "email_verified";
+  title: string;
   message: string;
   data?: any; // Additional context data
   read: boolean;
@@ -31,7 +32,8 @@ export interface IActivity extends Document {
     | "referral"
     | "support"
     | "system"
-    | "security";
+    | "security"
+    | "profile";
   actionUrl?: string; // URL to navigate when notification is clicked
   expiresAt?: Date; // For temporary notifications
   createdAt: Date;
@@ -60,6 +62,7 @@ const ActivitySchema = new Schema<IActivity>({
       "login_success",
       "login_failed",
       "course_reviewed",
+      "email_verified",
     ],
   },
   title: { type: String, required: true },
@@ -73,7 +76,7 @@ const ActivitySchema = new Schema<IActivity>({
   },
   category: {
     type: String,
-    enum: ["course", "payment", "referral", "support", "system", "security"],
+    enum: ["course", "payment", "referral", "support", "system", "security", "profile"],
     required: true,
   },
   actionUrl: { type: String },

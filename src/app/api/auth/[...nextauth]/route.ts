@@ -8,7 +8,7 @@ import {
   validateEmail,
   validatePassword,
 } from "@/lib/auth";
-import { sendWelcomeEmail } from "@/lib/sendEmail";
+import { sendVerificationEmail, sendWelcomeEmail } from "@/lib/sendEmail";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -61,6 +61,7 @@ export const authOptions: NextAuthOptions = {
             // Send welcome email
             try {
               await sendWelcomeEmail(newUser.email, newUser.name);
+              await sendVerificationEmail(newUser.email, newUser.name);
             } catch (emailError) {
               console.error("Failed to send welcome email:", emailError);
             }
@@ -71,6 +72,7 @@ export const authOptions: NextAuthOptions = {
               name: newUser.name,
               role: newUser.role,
               referralCode: newUser.referralCode,
+              emailVerified: !!newUser.emailVerified || false,
             };
           } else {
             // Sign in logic
@@ -93,6 +95,7 @@ export const authOptions: NextAuthOptions = {
               name: user.name,
               role: user.role,
               referralCode: user.referralCode,
+              emailVerified: !!user.emailVerified,
             };
           }
         } catch (error) {
@@ -120,8 +123,9 @@ export const authOptions: NextAuthOptions = {
               avatar: user.image || undefined,
               oauthProvider: "google",
               oauthId: account.providerAccountId,
+              emailVerified: new Date(),
             });
-
+ 
             user.id = newUser._id.toString();
             user.role = newUser.role;
             user.referralCode = newUser.referralCode;
@@ -136,6 +140,7 @@ export const authOptions: NextAuthOptions = {
             user.id = existingUser._id.toString();
             user.role = existingUser.role;
             user.referralCode = existingUser.referralCode;
+            user.emailVerified = !!existingUser?.emailVerified;
           }
         } catch (error) {
           console.error("Google sign in error:", error);
@@ -149,7 +154,17 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = user.role || "student";
         token.referralCode = user.referralCode;
+        token.emailVerified = !!user.emailVerified;
+        token.email = user.email;
       }
+
+      if (token.email) {
+        const dbUser = await findUserByEmail(token.email);
+        if (dbUser) {
+          token.emailVerified = !!dbUser.emailVerified;
+        }
+      }
+      
       return token;
     },
     async session({ session, token }) {
@@ -157,6 +172,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
         session.user.referralCode = token.referralCode as string;
+        session.user.emailVerified = token.emailVerified;
       }
       return session;
     },

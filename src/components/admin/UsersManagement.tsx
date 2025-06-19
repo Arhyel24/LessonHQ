@@ -50,7 +50,7 @@ export const UsersManagement = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [pagination, setPagination] = useState({
     hasNext: false,
     hasPrev: false,
@@ -58,29 +58,27 @@ export const UsersManagement = () => {
     pages: 1,
   });
 
+  const fetchUsers = async () => {
+    try {
+      const params = {
+        page,
+        limit,
+        search: searchTerm,
+        role: roleFilter !== "all" ? roleFilter : undefined,
+      };
+
+      const response = await axios.get("/api/admin/users", { params });
+      const { users: fetchedUsers, pagination: pageInfo } = response.data.data;
+      setUsers(fetchedUsers);
+      setPagination(pageInfo);
+    } catch (error) {
+      console.error("Failed to fetch users", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchUsers = async () => {
-      setIsLoading(true);
-      try {
-        const params = {
-          page,
-          limit,
-          search: searchTerm,
-          role: roleFilter !== "all" ? roleFilter : undefined,
-        };
-
-        const response = await axios.get("/api/admin/users", { params });
-        const { users: fetchedUsers, pagination: pageInfo } =
-          response.data.data;
-        setUsers(fetchedUsers);
-        setPagination(pageInfo);
-      } catch (error) {
-        console.error("Failed to fetch users", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchUsers();
   }, [searchTerm, roleFilter, page, limit]);
 
@@ -105,7 +103,12 @@ export const UsersManagement = () => {
             <DialogHeader>
               <DialogTitle>Add New User</DialogTitle>
             </DialogHeader>
-            <UserForm onClose={() => setIsAddDialogOpen(false)} />
+            <UserForm
+              onClose={() => {
+                setIsAddDialogOpen(false);
+                fetchUsers();
+              }}
+            />
           </DialogContent>
         </Dialog>
       </div>

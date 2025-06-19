@@ -22,7 +22,9 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useParams, useRouter } from "next/navigation";
-import { ICourseTransformed } from "@/types/course";
+import { ICourseTransformed } from "@/types/Course";
+import Image from "next/image";
+import PaystackPop from "@paystack/inline-js";
 
 interface Coupon {
   code: string;
@@ -97,59 +99,52 @@ const CoursePayment = () => {
 
     setIsApplyingCoupon(true);
 
-    // Mock coupon validation - replace with real API call
-    setTimeout(() => {
-      const mockCoupons: Record<string, Coupon> = {
-        SAVE50: {
-          code: "SAVE50",
-          type: "percentage",
-          value: 50,
-          isValid: true,
+    try {
+      const res = await fetch("/api/coupon/verify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        FREE100: {
-          code: "FREE100",
-          type: "percentage",
-          value: 100,
-          isValid: true,
-        },
-        DISCOUNT5000: {
-          code: "DISCOUNT5000",
-          type: "fixed",
-          value: 5000,
-          isValid: true,
-        },
-        EXPIRED: {
-          code: "EXPIRED",
-          type: "percentage",
-          value: 20,
-          isValid: false,
-          message: "This coupon has expired",
-        },
-      };
+        body: JSON.stringify({
+          code: couponCode.trim(),
+          couserId: course.id,
+          amount: course.price,
+        }),
+      });
 
-      const coupon = mockCoupons[couponCode.toUpperCase()];
+      const json = await res.json();
 
-      if (coupon && coupon.isValid) {
+      if (res.ok && json.success && json.data.isValid) {
+        const coupon: Coupon = {
+          code: json.data.code,
+          type: json.data.type,
+          value: json.data.value,
+          isValid: true,
+        };
+
         setAppliedCoupon(coupon);
+
         toast({
           title: "Coupon Applied!",
-          description: `${
-            coupon.type === "percentage"
-              ? coupon.value + "%"
-              : "₦" + coupon.value
-          } discount applied successfully.`,
+          description: json.data.message,
         });
       } else {
         toast({
           title: "Invalid Coupon",
-          description:
-            coupon?.message || "The coupon code you entered is not valid.",
+          description: json.data.message || "The coupon code is not valid.",
           variant: "destructive",
         });
       }
-
+    } catch (err) {
+      console.error("Error verifying coupon:", err);
+      toast({
+        title: "Error",
+        description: "Something went wrong while verifying the coupon.",
+        variant: "destructive",
+      });
+    } finally {
       setIsApplyingCoupon(false);
-    }, 1000);
+    }
   };
 
   const handleRemoveCoupon = () => {
@@ -162,21 +157,80 @@ const CoursePayment = () => {
   };
 
   const handlePayment = async () => {
+    const courseId = course?.id;
+    if (!courseId) return;
+
     setIsProcessingPayment(true);
 
-    // Mock payment processing - replace with real payment integration
-    setTimeout(() => {
-      toast({
-        title: "Payment Successful!",
-        description: "You now have access to the course. Redirecting...",
+    try {
+      const res = await fetch("/api/payments/initialize", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          courseId,
+          couponCode: couponCode?.trim() || undefined,
+        }),
       });
 
-      setTimeout(() => {
-        router.push(`/course/${slug}/lessons`);
-      }, 2000);
+      const json = await res.json();
 
+      if (!res.ok || !json.success) {
+        toast({
+          title: "Payment Failed",
+          description: json.message || "Unable to process your purchase.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data } = json;
+
+      if (!data) {
+        toast({
+          title: "Invalid Server Response",
+          description: "Server returned success without payment data.",
+          variant: "destructive",
+        });
+        return;
+      }      
+
+      console.log("Payment data:", json)
+
+      if (data.enrolled) {
+        // Free enrollment successful
+        toast({
+          title: "Enrolled Successfully!",
+          description: "You now have access to the course. Redirecting...",
+        });
+        setTimeout(() => {
+          router.push(`/course/${slug}/lesson`);
+        }, 2000);
+      // } else if (data.accessCode) {
+      //   // Use Paystack popup
+      //   const popup = new PaystackPop();
+      //   popup.resumeTransaction(data.accessCode);
+      } else if (data.paymentUrl) {
+        // Paid course, redirect to Paystack
+        window.location.href = data.paymentUrl;
+      } else {
+        toast({
+          title: "Unknown Payment Response",
+          description: "Could not determine the payment status.",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      console.error("Payment error:", err);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred during payment.",
+        variant: "destructive",
+      });
+    } finally {
       setIsProcessingPayment(false);
-    }, 2000);
+    }
   };
 
   const finalPrice = calculateFinalPrice();
@@ -212,10 +266,14 @@ const CoursePayment = () => {
               </CardHeader>
               <CardContent>
                 <div className="flex gap-4">
-                  <img
+                  <Image
                     src={course.thumbnail}
                     alt={course.title}
                     className="w-20 h-20 rounded-lg object-cover"
+                    width={80}
+                    height={80}
+                    quality={80}
+                    loader={({ src }) => src}
                   />
                   <div className="flex-1">
                     <h3 className="font-semibold text-lg">{course.title}</h3>
@@ -376,7 +434,7 @@ const CoursePayment = () => {
                 <div className="mt-4 text-center">
                   <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
                     <AlertCircle className="h-4 w-4" />
-                    Secure payment powered by Stripe
+                    Secure payment powered by Paystack
                   </div>
                 </div>
               </CardContent>

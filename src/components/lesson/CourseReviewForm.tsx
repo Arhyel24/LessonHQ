@@ -10,8 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
-import Image from "next/image";
+import ReviewCard from "./ReviewCard";
 
 interface CourseReviewFormProps {
   courseTitle: string;
@@ -145,26 +144,6 @@ export const CourseReviewForm = ({ courseTitle }: CourseReviewFormProps) => {
     setRating(selectedRating);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const renderStars = (rating: number, size = "h-4 w-4") => {
-    return [1, 2, 3, 4, 5].map((star) => (
-      <Star
-        key={star}
-        className={cn(
-          size,
-          star <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-        )}
-      />
-    ));
-  };
-
   const totalReviews = Object.values(distribution).reduce(
     (sum, val) => sum + val,
     0
@@ -187,7 +166,7 @@ export const CourseReviewForm = ({ courseTitle }: CourseReviewFormProps) => {
             <Label className="text-base font-medium mb-3 block">
               Your Rating
             </Label>
-            <div className="flex items-center gap-1">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
@@ -199,7 +178,7 @@ export const CourseReviewForm = ({ courseTitle }: CourseReviewFormProps) => {
                 >
                   <Star
                     className={cn(
-                      "h-8 w-8 transition-colors",
+                      "h-6 w-6 sm:h-8 sm:w-8 transition-colors",
                       hoveredRating >= star || rating >= star
                         ? "fill-yellow-400 text-yellow-400"
                         : "text-gray-300 hover:text-yellow-300"
@@ -208,7 +187,7 @@ export const CourseReviewForm = ({ courseTitle }: CourseReviewFormProps) => {
                 </button>
               ))}
               {rating > 0 && (
-                <span className="ml-3 text-sm text-gray-600">
+                <span className="w-full sm:w-auto text-sm text-gray-600 sm:ml-3 mt-2 sm:mt-0">
                   {rating} {rating === 1 ? "star" : "stars"}
                 </span>
               )}
@@ -253,7 +232,7 @@ export const CourseReviewForm = ({ courseTitle }: CourseReviewFormProps) => {
 
       {/* Review Filters */}
       <div className="flex flex-wrap justify-between items-center gap-4">
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {["All", 5, 4, 3, 2, 1].map((value) => (
             <Button
               key={value}
@@ -268,6 +247,7 @@ export const CourseReviewForm = ({ courseTitle }: CourseReviewFormProps) => {
                   typeof value === "number" ? value : null
                 )
               }
+              className="text-sm px-3 py-1"
             >
               {typeof value === "number" ? `${value} Stars` : "All"}
             </Button>
@@ -334,87 +314,12 @@ export const CourseReviewForm = ({ courseTitle }: CourseReviewFormProps) => {
           </CardHeader>
           <CardContent className="space-y-4">
             {filteredReviews.map((review) => (
-              <div key={review.id} className="pb-4 border-b last:border-b-0">
-                {/* Avatar + Info */}
-                <div className="flex flex-col sm:flex-row gap-3 sm:items-start">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={review.user.avatar} />
-                    <AvatarFallback>
-                      <Image
-                        src="/avatar.jpeg"
-                        alt="Fallback"
-                        width={40}
-                        height={40}
-                      />
-                    </AvatarFallback>
-                  </Avatar>
-
-                  <div className="flex-1">
-                    <div className="flex flex-col sm:flex-row justify-between sm:items-center">
-                      <div>
-                        <h4 className="font-semibold">{review.user?.name}</h4>
-                        <p className="text-sm text-gray-500">
-                          {formatDate(review.createdAt)}
-                        </p>
-                      </div>
-
-                      <div className="flex gap-2 mt-2 sm:mt-0">
-                        {/* Upvote Button */}
-                        <button
-                          onClick={() =>
-                            handleVote(
-                              review.id,
-                              true,
-                              localVotes[review.id] ?? review.voted
-                            )
-                          }
-                          className={cn(
-                            "px-3 py-1.5 rounded-md border text-sm font-medium transition-colors cursor-pointer",
-                            localVotes[review.id] === true
-                              ? "bg-green-100 text-green-700 border-green-300 hover:bg-green-200"
-                              : "bg-white text-gray-600 border-gray-300 hover:bg-gray-100"
-                          )}
-                        >
-                          👍{" "}
-                          {review.helpful +
-                            (localVotes[review.id] === true ? 1 : 0)}
-                        </button>
-
-                        {/* Downvote Button */}
-                        <button
-                          onClick={() =>
-                            handleVote(
-                              review.id,
-                              false,
-                              localVotes[review.id] ?? review.voted
-                            )
-                          }
-                          className={cn(
-                            "px-3 py-1.5 rounded-md border text-sm font-medium transition-colors cursor-pointer",
-                            localVotes[review.id] === false
-                              ? "bg-red-100 text-red-700 border-red-300 hover:bg-red-200"
-                              : "bg-white text-gray-600 border-gray-300 hover:bg-gray-100"
-                          )}
-                        >
-                          👎{" "}
-                          {review.notHelpful +
-                            (localVotes[review.id] === false ? 1 : 0)}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-1 mt-2">
-                      {renderStars(review.rating)}
-                      <span className="text-xs text-gray-600">
-                        ({review.rating}/5)
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-800 mt-2">
-                      {review.comment}
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <ReviewCard
+                key={review.id}
+                review={review}
+                handleVote={handleVote}
+                localVotes={localVotes}
+              />
             ))}
 
             {/* View More Button */}

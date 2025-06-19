@@ -101,13 +101,13 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Check if coupon is applicable to the course
-    if (
-      courseId &&
-      coupon.applicableCourses &&
-      coupon.applicableCourses.length > 0
-    ) {
-      if (!coupon.applicableCourses.includes(courseId)) {
+    // Ensure all applicableCourse ids are strings before checking
+    if (coupon.applicableCourses && coupon.applicableCourses.length > 0) {
+      const isApplicable = coupon.applicableCourses
+        .map((id) => id.toString())
+        .includes(courseId);
+      
+      if (!isApplicable) {
         return NextResponse.json({
           success: true,
           data: {

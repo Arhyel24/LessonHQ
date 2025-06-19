@@ -7,6 +7,7 @@ export interface IPurchase extends Document {
   status: "pending" | "completed" | "failed" | "cancelled";
   paymentReference: string;
   paymentProvider?: "paystack" | "flutterwave";
+  data?: any; // Store coupon info and other metadata
   paidAt?: Date;
   createdAt: Date;
 }
@@ -26,12 +27,14 @@ const PurchaseSchema = new Schema<IPurchase>({
     enum: ["paystack", "flutterwave"],
     default: "paystack",
   },
+  data: { type: Schema.Types.Mixed }, // Store coupon and discount info
   paidAt: { type: Date },
   createdAt: { type: Date, default: Date.now },
 });
 
 // Index for efficient queries
 PurchaseSchema.index({ user: 1, course: 1 });
+PurchaseSchema.index({ paymentReference: 1 });
 PurchaseSchema.index({ status: 1, createdAt: -1 });
 
 export default mongoose.models.Purchase ||

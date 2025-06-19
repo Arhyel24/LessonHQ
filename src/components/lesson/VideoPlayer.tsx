@@ -27,6 +27,12 @@ export const VideoPlayer = ({ id, title, videoUrl, duration, isCompleted, markCo
     setIsPlaying(true);
   };
 
+  function getEmbedUrl(youtubeUrl: string): string {
+    const url = new URL(youtubeUrl);
+    const videoId = url.searchParams.get("v");
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : youtubeUrl;
+  }
+
   return (
     <Card className="overflow-hidden">
       <CardContent className="p-0">
@@ -50,24 +56,24 @@ export const VideoPlayer = ({ id, title, videoUrl, duration, isCompleted, markCo
         <div className="relative aspect-video bg-gray-900">
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <Skeleton className="w-full h-full" />
+              <Skeleton className="w-full h-full bg-gray-200" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="bg-primary/20 rounded-full p-4">
+                <div className="bg-gray-300 rounded-full p-4">
                   <Play className="h-8 w-8 text-white" />
                 </div>
               </div>
             </div>
           )}
-          
+
           <iframe
-            src={videoUrl}
+            src={getEmbedUrl(videoUrl)}
             title={title}
             className="w-full h-full"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
             onLoad={handleVideoLoad}
-            style={{ display: isLoading ? 'none' : 'block' }}
+            style={{ display: isLoading ? "none" : "block" }}
           />
         </div>
 
@@ -81,13 +87,13 @@ export const VideoPlayer = ({ id, title, videoUrl, duration, isCompleted, markCo
                 className="bg-primary hover:bg-primary/90"
               >
                 <Play className="h-4 w-4 mr-2" />
-                {isPlaying ? 'Playing' : 'Play'}
+                {isPlaying ? "Playing" : "Play"}
               </Button>
               <span className="text-sm text-gray-600">
-                {isCompleted ? 'Watched' : 'Not completed'}
+                {isCompleted ? "Watched" : "Not completed"}
               </span>
             </div>
-            
+
             {!isCompleted && (
               <Button
                 variant="outline"
@@ -96,13 +102,13 @@ export const VideoPlayer = ({ id, title, videoUrl, duration, isCompleted, markCo
                 onClick={() => markComplete(id)}
               >
                 {isMarking ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Marking as Complete...
-                    </>
-                  ) : (
-                    "Mark as Complete"
-                  )}
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Marking as Complete...
+                  </>
+                ) : (
+                  "Mark as Complete"
+                )}
               </Button>
             )}
           </div>

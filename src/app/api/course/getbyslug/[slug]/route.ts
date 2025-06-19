@@ -21,7 +21,6 @@ export async function GET(
 
     const param = await params;
     const slug = param.slug;
-    console.log("Fetching course with slug:", slug);
 
     const course = await Course.findOne({ slug }).lean<ICourse>();
 

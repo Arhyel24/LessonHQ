@@ -194,8 +194,6 @@ export async function GET() {
         icon: "TrendingUp",
       },
       ];
-      
-      console.log("Main stats:", mainStats);
 
     return NextResponse.json({ success: true, data: mainStats });
   } catch (error) {

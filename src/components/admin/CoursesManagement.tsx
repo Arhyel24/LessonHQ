@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Search, Edit, Trash2, Eye } from "lucide-react";
+import { Plus, Search, Edit, Trash2 } from "lucide-react";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -60,7 +60,7 @@ export const CoursesManagement = ({
   const { toast } = useToast();
   const router = useRouter();
 
-  const fetchCourses = async () => {
+  const fetchCourses = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(
@@ -76,11 +76,11 @@ export const CoursesManagement = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, searchTerm]);
 
   useEffect(() => {
     fetchCourses();
-  }, [page, searchTerm]);
+  }, [fetchCourses]);  
 
   const handleDelete = async () => {
     if (!selectedCourse) return;
@@ -186,7 +186,6 @@ export const CoursesManagement = ({
                             <p className="font-medium text-gray-900">
                               {course.title}
                             </p>
-                            <p className="text-sm text-gray-600">****</p>
                           </div>
                         </TableCell>
                         <TableCell>₦{course.price.toLocaleString()}</TableCell>
@@ -206,13 +205,6 @@ export const CoursesManagement = ({
                         <TableCell>{course.createdAt}</TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => alert(`Course ID: ${course.id}`)}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
                             <Button
                               variant="ghost"
                               size="sm"

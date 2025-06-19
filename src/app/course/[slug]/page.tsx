@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Clock, Users, Star, CheckCircle } from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-import { ICourseTransformed } from "@/types/course";
+import { ICourseTransformed } from "@/types/Course";
 
 const CourseDetail = () => {
   const { slug } = useParams();
@@ -15,6 +15,7 @@ const CourseDetail = () => {
 
   const [course, setCourse] = useState<ICourseTransformed | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -30,7 +31,7 @@ const CourseDetail = () => {
         setCourse(json.data);
       } catch (error) {
         console.error("Error loading course:", error);
-        router.push("/courses");
+        setError("Error loading courses, please reload or go back")
       } finally {
         setLoading(false);
       }
@@ -49,7 +50,7 @@ const CourseDetail = () => {
     if (!course?.isEnrolled) {
       router.push(`/course/${slug}/payment`)
     } else {
-      router.push(`/course/${slug}/lessons`)
+      router.push(`/course/${slug}/lesson`)
     }
   }
 
@@ -62,6 +63,29 @@ const CourseDetail = () => {
   }
 
   if (!course) return null; // Shouldn't reach here, but just in case
+
+  if (error) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-screen text-center px-4">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-2">Oops!</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <div className="flex gap-4">
+            <Button
+              onClick={() => router.refresh()}
+              className="bg-secondary text-white"
+            >
+              Refresh
+            </Button>
+            <Button
+              onClick={() => router.push("/courses")}
+              className="bg-primary text-white"
+            >
+              Back to Courses
+            </Button>
+          </div>
+        </div>
+      );
+    }
 
   return (
     <div className="min-h-screen bg-gray-50">

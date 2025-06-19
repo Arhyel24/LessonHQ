@@ -20,6 +20,7 @@ export async function createUser(userData: {
   referredBy?: string;
   oauthProvider?: string;
   oauthId?: string;
+  emailVerified?: Date;
 }) {
   await connectDB();
   

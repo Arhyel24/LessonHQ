@@ -1,15 +1,17 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/route";
+
 import connectDB from "@/lib/connectDB";
 import User from "@/lib/models/User";
 import Purchase from "@/lib/models/Purchase";
+
 import { AffiliateStatus } from "@/types/earnings";
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
         { status: 401 }
@@ -18,9 +20,10 @@ export async function GET() {
 
     await connectDB();
 
-    const user = await User.findById(session.user.id).select(
-      "referralCode referralEarnings referralBalance"
-    );
+    const user = await User.findById(session.user.id)
+      .select("referralCode referralEarnings referralBalance")
+      .lean();
+
     if (!user) {
       return NextResponse.json(
         { success: false, error: "User not found" },
@@ -30,39 +33,40 @@ export async function GET() {
 
     const referredUsers = await User.find({ referredBy: user.referralCode })
       .select("name email createdAt")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     const referredUserIds = referredUsers.map((u) => u._id);
 
     const referralPurchases = await Purchase.find({
       user: { $in: referredUserIds },
     })
-      .populate("user", "name email")
-      .populate("course", "title")
-      .sort({ paidAt: -1 });
+      .populate({ path: "user", select: "name email" })
+      .populate({ path: "course", select: "title" })
+      .sort({ paidAt: -1 })
+      .lean();
 
+    // Calculate earnings breakdown
     const earningsBreakdown = referralPurchases.map((purchase) => ({
-      id: purchase._id,
+      id: (purchase._id as string).toString(),
       user: purchase.user,
       course: purchase.course,
       amount: purchase.amount,
       commission: purchase.amount * 0.3,
-      paidAt: purchase.paidAt,
+      paidAt: new Date(purchase.paidAt),
+      status: purchase.status,
     }));
 
-    // Calculate current month earnings
+    // Monthly earnings
     const now = new Date();
-    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-    const monthlyEarnings = earningsBreakdown
-      .filter(
-        (purchase) =>
-          purchase.paidAt >= firstDayOfMonth &&
-          purchase.paidAt <= lastDayOfMonth
-      )
-      .reduce((sum, purchase) => sum + purchase.commission, 0);
+    const earningsThisMonth = earningsBreakdown
+      .filter((e) => e.paidAt >= startOfMonth && e.paidAt <= endOfMonth)
+      .reduce((sum, e) => sum + e.commission, 0);
 
+    // History per referred user
     const history = referredUsers.map((refUser) => {
       const purchase = referralPurchases.find(
         (p) => p.user._id.toString() === refUser._id.toString()
@@ -79,10 +83,12 @@ export async function GET() {
         }
         reward = purchase.amount * 0.3;
       } else {
-        const daysAgo =
+        const daysSinceReferral =
           (Date.now() - new Date(refUser.createdAt).getTime()) /
           (1000 * 60 * 60 * 24);
-        if (daysAgo > 7) status = "Pending";
+        if (daysSinceReferral > 7) {
+          status = "Pending";
+        }
       }
 
       return {
@@ -105,16 +111,16 @@ export async function GET() {
       success: true,
       data: {
         totalEarnings: user.referralEarnings,
+        withdrawableBalance: user.referralEarnings,
+        earningsThisMonth: Math.floor(earningsThisMonth),
         successfulAffiliates,
         pendingAffiliates,
-        withdrawableBalance: user.referralBalance || user.referralEarnings,
         AffiliateLink: `https://mic.dev.app/auth/signup?ref=${user.referralCode}`,
-        earningsThisMonth: Math.floor(monthlyEarnings),
         history,
       },
     });
   } catch (error) {
-    console.error("Error fetching referral data:", error);
+    console.error("[REFERRAL_FETCH_ERROR]", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch referral data" },
       { status: 500 }

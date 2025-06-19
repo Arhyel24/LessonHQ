@@ -104,7 +104,7 @@ const Lesson = () => {
         <div className="flex gap-4">
           <Button
             onClick={() => router.refresh()}
-            className="bg-secondary text-white"
+            className="bg-secondary text-primary hover:text-white"
           >
             Refresh
           </Button>
