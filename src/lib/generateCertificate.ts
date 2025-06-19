@@ -32,12 +32,12 @@ export async function generateCertificate(
       // Border
       doc
         .rect(20, 20, doc.page.width - 40, doc.page.height - 40)
-        .stroke("#2563eb", 3);
+        .stroke("#2563eb").lineWidth(2);
 
       // Inner border
       doc
         .rect(40, 40, doc.page.width - 80, doc.page.height - 80)
-        .stroke("#3b82f6", 1);
+        .stroke("#3b82f6").lineWidth(1);
 
       // Title
       doc
