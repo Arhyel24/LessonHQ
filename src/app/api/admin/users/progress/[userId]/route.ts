@@ -12,7 +12,7 @@ import Purchase from "@/lib/models/Purchase";
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { userId: string } }
+  context: { params: Promise<{ userId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -31,8 +31,7 @@ export async function GET(
       );
     }
 
-    const paramsData = await params;
-    const userId = paramsData.userId;
+    const { userId } = await context.params;
 
     // Verify target user exists
     const targetUser = await User.findById(userId);

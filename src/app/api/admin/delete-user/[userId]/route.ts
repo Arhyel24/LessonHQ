@@ -13,13 +13,15 @@ import Activity from "@/lib/models/Activity";
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  context: { params: Promise<{ userId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const {userId} = await context.params;
 
     await connectDB();
 
@@ -36,7 +38,7 @@ export async function DELETE(
     const { reason, forceDelete = false } = body;
 
     // Get target user
-    const targetUser = await User.findById(params.userId);
+    const targetUser = await User.findById(userId);
     if (!targetUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
@@ -59,7 +61,7 @@ export async function DELETE(
 
     // Check for active data
     const [purchases, referralEarnings] = await Promise.all([
-      Purchase.find({ user: params.userId, status: "completed" }),
+      Purchase.find({ user: userId, status: "completed" }),
       targetUser.referralEarnings,
     ]);
 
@@ -80,13 +82,13 @@ export async function DELETE(
 
     // Delete related data
     await Promise.all([
-      Progress.deleteMany({ user: params.userId }),
-      Activity.deleteMany({ user: params.userId }),
-      Purchase.deleteMany({ user: params.userId }),
+      Progress.deleteMany({ user: userId }),
+      Activity.deleteMany({ user: userId }),
+      Purchase.deleteMany({ user: userId }),
     ]);
 
     // Delete user account
-    await User.findByIdAndDelete(params.userId);
+    await User.findByIdAndDelete(userId);
 
     // Log admin deletion
     console.log(
