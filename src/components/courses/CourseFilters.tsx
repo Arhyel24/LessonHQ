@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
+import { FilterType } from "@/lib/models/Course";
 import { cn } from "@/lib/utils";
-import { FilterType } from "@/types/course";
 
 interface CourseFiltersProps {
   selectedFilter: FilterType;
